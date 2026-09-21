@@ -10,6 +10,56 @@ body {
 	overflow: hidden;
 }
 
+#link-generator {
+	width: min(90vw, 700px);
+	color: #fff;
+	text-align: center;
+	font-family: Roboto, Arial, sans-serif;
+}
+#link-generator h1 {
+	margin: 0 0 1vh;
+	color: #f00;
+	font-size: clamp(3rem, 10vw, 7rem);
+	text-shadow: 0 0 3vh #f00;
+}
+#link-generator p {
+	font-size: clamp(1rem, 2vw, 1.5rem);
+}
+#generator-form, #generated-link {
+	display: flex;
+	gap: 1vh;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-top: 3vh;
+}
+#destination-input, #link-output {
+	flex: 1 1 400px;
+	min-width: 0;
+	padding: 1.5vh 2vh;
+	border: 2px solid #f00;
+	border-radius: 1vh;
+	background: #111;
+	color: #fff;
+	font: 1rem Arial, sans-serif;
+}
+#generator-form button, #copy-link {
+	padding: 1.5vh 2vh;
+	border: 0;
+	border-radius: 1vh;
+	background: #f00;
+	color: #000;
+	font: 900 1rem Roboto, Arial, sans-serif;
+	cursor: pointer;
+}
+#generator-form button:hover, #copy-link:hover {
+	background: #ff0;
+}
+#copy-status {
+	width: 100%;
+	color: #0f0;
+	font: 1rem Arial, sans-serif;
+}
+
 #start-button {
 	padding: 2vh 5vh;
 	border-radius: 4vh;
@@ -30,6 +80,7 @@ body {
 }
 #start-button.hidden {
 	translate: 0px 60vh;
+	pointer-events: none;
 }
 
 .container {
@@ -43,6 +94,7 @@ body {
 .container.hidden {
 	opacity: 0;
 	scale: 1.5;
+	pointer-events: none;
 }
 
 .rotary-container:not(.hidden) {
@@ -116,4 +168,5 @@ body {
 	opacity: 0;
 	font-size: 18vw;
 	cursor: default;
+	pointer-events: none;
 }

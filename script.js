@@ -4,6 +4,25 @@ const container = document.getElementsByClassName('container')[0];
 const keys = document.getElementsByClassName('key');
 const wrong = document.getElementById('wrong');
 const correct = document.getElementById('correct');
+const linkGenerator = document.getElementById('link-generator');
+const generatorForm = document.getElementById('generator-form');
+const destinationInput = document.getElementById('destination-input');
+const generatedLink = document.getElementById('generated-link');
+const linkOutput = document.getElementById('link-output');
+const copyLink = document.getElementById('copy-link');
+const copyStatus = document.getElementById('copy-status');
+
+function isTargetPage() {
+	return Boolean(
+		new URLSearchParams(window.location.search).get('target') ||
+		new URLSearchParams(window.location.hash.slice(1)).get('target') ||
+		window.location.pathname.includes('/limbo.keys/http')
+	);
+}
+
+function getAppUrl() {
+	return `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`;
+}
 
 function getRedirectUrl() {
 	const marker = '/limbo.keys/';
@@ -43,6 +62,37 @@ const movements = [
 	[[0, 0], [-1, 1], [1, -1], [-1, 1], [1, -1], [-1, 1], [1, -1], [0, 0]]    // big diagonal swap bl/tr
 ]
 const doMove = [true, true, true, true, true, false, false, true, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, true, true, true, true, true, false];
+if (isTargetPage()) {
+	linkGenerator.hidden = true;
+	startBtn.classList.remove('hidden');
+}
+
+generatorForm.onsubmit = (event) => {
+	event.preventDefault();
+	const destination = destinationInput.value.trim();
+
+	try {
+		const url = new URL(destination);
+		if (!['http:', 'https:'].includes(url.protocol)) {
+			throw new Error('Unsupported protocol');
+		}
+
+		linkOutput.value = `${getAppUrl()}#target=${encodeURIComponent(url.href)}`;
+		generatedLink.hidden = false;
+		copyStatus.textContent = '';
+	} catch {
+		destinationInput.setCustomValidity('Enter a valid http:// or https:// URL.');
+		destinationInput.reportValidity();
+	}
+};
+
+destinationInput.oninput = () => destinationInput.setCustomValidity('');
+
+copyLink.onclick = async () => {
+	await navigator.clipboard.writeText(linkOutput.value);
+	copyStatus.textContent = 'Copied!';
+};
+
 startBtn.onclick = () => {
 	audio.currentTime = 0;
 	audio.play();
