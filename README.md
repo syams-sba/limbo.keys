@@ -27,7 +27,7 @@ If they don't...
 The URL itself contains the destination:
 
 ```text
-https://syams-sba.github.io/limbo.keys/https://example.com
+https://limbo.gt.tc/https://example.com
 ```
 
 Play the challenge → choose the correct key → get redirected to:
@@ -39,7 +39,7 @@ https://example.com
 For URLs containing a query string, use the URL exactly as shown:
 
 ```text
-https://syams-sba.github.io/limbo.keys/https://www.youtube.com/watch?v=dQw4w9WgXcQ
+https://limbo.gt.tc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
 The custom `404.html` must be present in the branch and folder published by
@@ -152,7 +152,7 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 ## 🚀 Try it
 
 ```text
-https://syams-sba.github.io/limbo.keys/https://example.com
+https://limbo.gt.tc/https://example.com
 ```
 
 Replace `https://example.com` with whatever destination you want.
@@ -160,10 +160,10 @@ Replace `https://example.com` with whatever destination you want.
 For example:
 
 ```text
-https://syams-sba.github.io/limbo.keys/https://github.com
+https://limbo.gt.tc/https://github.com
 ```
 
-The destination is extracted from everything after `/limbo.keys/`, and the code only accepts targets beginning with `http://` or `https://`.
+The destination is extracted from everything after `/limbo.keys/` on the old GitHub Pages URL or from the root path on `limbo.gt.tc`. The generator only accepts targets beginning with `https://`.
 
 ## ⚠️ A small warning
 

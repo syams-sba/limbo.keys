@@ -8,10 +8,12 @@
 <script>
 	const marker = '/limbo.keys/';
 	const markerIndex = window.location.pathname.indexOf(marker);
-	const targetPath = window.location.pathname.slice(markerIndex + marker.length);
+	const targetPath = markerIndex === -1
+		? window.location.pathname.replace(/^\/+/, '')
+		: window.location.pathname.slice(markerIndex + marker.length);
 	const target = targetPath + window.location.search + window.location.hash;
 	const appUrl = markerIndex === -1
-		? marker
+		? '/'
 		: window.location.pathname.slice(0, markerIndex + marker.length);
 
 	window.location.replace(

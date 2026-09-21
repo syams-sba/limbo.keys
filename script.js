@@ -16,6 +16,7 @@ function isTargetPage() {
 	return Boolean(
 		new URLSearchParams(window.location.search).get('target') ||
 		new URLSearchParams(window.location.hash.slice(1)).get('target') ||
+		/^\/https?:\/\//i.test(window.location.pathname) ||
 		window.location.pathname.includes('/limbo.keys/http')
 	);
 }
@@ -35,11 +36,9 @@ function getRedirectUrl() {
 		return targetParameter;
 	}
 
-	if (markerIndex === -1) {
-		return 'https://www.google.com';
-	}
-
-	const targetPath = decodeURIComponent(window.location.pathname.slice(markerIndex + marker.length));
+	const targetPath = markerIndex === -1
+		? window.location.pathname.replace(/^\/+/, '')
+		: decodeURIComponent(window.location.pathname.slice(markerIndex + marker.length));
 	if (!/^https?:\/\//i.test(targetPath)) {
 		return 'https://www.google.com';
 	}
