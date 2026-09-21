@@ -73,7 +73,7 @@ generatorForm.onsubmit = (event) => {
 
 	try {
 		const url = new URL(destination);
-		if (!['http:', 'https:'].includes(url.protocol)) {
+		if (url.protocol !== 'https:') {
 			throw new Error('Unsupported protocol');
 		}
 
@@ -81,7 +81,7 @@ generatorForm.onsubmit = (event) => {
 		generatedLink.hidden = false;
 		copyStatus.textContent = '';
 	} catch {
-		destinationInput.setCustomValidity('Enter a valid http:// or https:// URL.');
+		destinationInput.setCustomValidity('Enter a valid https:// URL.');
 		destinationInput.reportValidity();
 	}
 };
@@ -183,6 +183,10 @@ startBtn.onclick = () => {
 														window.setTimeout(() => {
 																window.location.href = getRedirectUrl();
 														}, 1500);
+													} else {
+														window.setTimeout(() => {
+															startBtn.classList.remove('hidden');
+														}, 2000);
 													}
 													container.classList.remove('rotary-container');
 													container.classList.add('container');
@@ -190,9 +194,6 @@ startBtn.onclick = () => {
 														keys[l].getAnimations()[0].cancel();
 														keys[l].style.setProperty('--col', '#f00');
 													}
-													window.setTimeout(() => {
-														startBtn.classList.remove('hidden');
-													}, 2000);
 												}, 3000)
 											}
 										}, 1000);
