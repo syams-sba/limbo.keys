@@ -169,7 +169,7 @@ by **Mindcap**
 ```text
 limbo.keys/
 ├── index.html      # The game interface
-├── 404.html        # GitHub Pages fallback
+├── 404.html        # Fallback
 ├── style.css       # Styling + animations
 ├── script.js       # Game logic + redirect system
 ├── db.php          # Server-only MySQL connection configuration
