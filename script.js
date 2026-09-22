@@ -13,13 +13,20 @@ const copyLink = document.getElementById('copy-link');
 const copyStatus = document.getElementById('copy-status');
 
 function isTargetPage() {
+	const hashParameters = new URLSearchParams(window.location.hash.slice(1));
 	return Boolean(
 		new URLSearchParams(window.location.search).get('target') ||
-		new URLSearchParams(window.location.hash.slice(1)).get('target') ||
+		new URLSearchParams(window.location.search).get('link') ||
+		hashParameters.get('target') ||
+		hashParameters.get('link') ||
 		/^\/https?:\/\//i.test(window.location.pathname) ||
 		window.location.pathname.includes('/limbo.keys/http')
 	);
 }
+
+document.title = isTargetPage()
+	? 'Complete the challenge first before you enter!'
+	: 'limbo keys';
 
 function getAppUrl() {
 	return `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`;
@@ -46,6 +53,26 @@ function getRedirectUrl() {
 	return `${targetPath}${window.location.search}${window.location.hash}`;
 }
 
+let resolvedRedirectUrl = null;
+const linkToken = new URLSearchParams(window.location.search).get('link') ||
+	new URLSearchParams(window.location.hash.slice(1)).get('link');
+const linkResolution = linkToken
+	? fetch(`resolve-link.php?id=${encodeURIComponent(linkToken)}`)
+		.then(async (response) => {
+			const result = await response.json();
+			if (!response.ok || typeof result.destination !== 'string') {
+				throw new Error(result.error || 'Could not resolve link.');
+			}
+			resolvedRedirectUrl = result.destination;
+		})
+		.catch((error) => {
+			console.error(error);
+			startBtn.textContent = 'LINK UNAVAILABLE';
+			startBtn.classList.add('hidden');
+			throw error;
+		})
+	: Promise.resolve();
+
 const movements = [
 	[[1, 0], [0, 1], [0, -1], [-1, 0], [1, 0], [0, 1], [0, -1], [-1, 0]],     // small rotate cw, cw
 	[[1, 0], [0, 1], [0, -1], [-1, 0], [0, 1], [-1, 0], [1, 0], [0, -1]],     // small rotate cw, ccw
@@ -66,7 +93,7 @@ if (isTargetPage()) {
 	startBtn.classList.remove('hidden');
 }
 
-generatorForm.onsubmit = (event) => {
+generatorForm.onsubmit = async (event) => {
 	event.preventDefault();
 	const destination = destinationInput.value.trim();
 
@@ -76,10 +103,22 @@ generatorForm.onsubmit = (event) => {
 			throw new Error('Unsupported protocol');
 		}
 
-		linkOutput.value = `${getAppUrl()}#target=${encodeURIComponent(url.href)}`;
+		const id = crypto.randomUUID();
+		const response = await fetch('create-link.php', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({id, destination: url.href}),
+		});
+		const result = await response.json();
+		if (!response.ok || result.id !== id) {
+			throw new Error(result.error || 'Could not create link.');
+		}
+
+		linkOutput.value = `${getAppUrl()}?link=${encodeURIComponent(id)}`;
 		generatedLink.hidden = false;
 		copyStatus.textContent = '';
-	} catch {
+	} catch (error) {
+		console.error(error);
 		destinationInput.setCustomValidity('Enter a valid https:// URL.');
 		destinationInput.reportValidity();
 	}
@@ -179,8 +218,9 @@ startBtn.onclick = () => {
 													text.animate([{opacity: 1}, {opacity: 0}],
 																{duration: 2000});
 													if (k === correctKey) {
-														window.setTimeout(() => {
-																window.location.href = getRedirectUrl();
+														window.setTimeout(async () => {
+															await linkResolution;
+															window.location.href = resolvedRedirectUrl || getRedirectUrl();
 														}, 1500);
 													} else {
 														window.setTimeout(() => {

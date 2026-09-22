@@ -29,6 +29,26 @@ body {
 	margin-top: 1vh;
 	font-size: clamp(.9rem, 1.6vw, 1.15rem);
 }
+#link-generator .generator-note summary {
+	display: inline-block;
+	padding: 1vh 2vh;
+	border: 2px solid #f00;
+	border-radius: 1vh;
+	color: #f00;
+	cursor: pointer;
+	font-size: clamp(.9rem, 1.6vw, 1.15rem);
+	user-select: none;
+}
+#link-generator .generator-note summary:hover {
+	background: #f00;
+	color: #000;
+}
+#link-generator .generator-note p {
+	margin: 1.5vh auto 0;
+	max-width: 650px;
+	color: #ccc;
+	font: 1rem/1.5 Arial, sans-serif;
+}
 #link-generator footer {
 	margin-top: 4vh;
 	color: #aaa;

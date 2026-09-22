@@ -3,18 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Complete the challenge first before you enter!</title>
+    <title>limbo keys</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+    <script src="script.js?v=2" defer></script>
   </head>
   <body>
     <audio id="limbo-audio" src="limbo.mp3" preload="auto"></audio>
     <main id="link-generator">
-      <h1>limbo.keys</h1>
+      <h1>limbo keys</h1>
       <p>Enter a destination to create a challenge link.</p>
-      <p class="generator-note">
-        Use an <strong>https:// or http://</strong> link
-      </p>
+      <details class="generator-note">
+        <summary>DISCLAIMER</summary>
+        <p>
+          Only HTTPS destinations are accepted. Links are random UUIDs, not
+          encrypted, and anyone with a link can use it. The destination is
+          stored on the site database, so links work only while this website
+          and its database are available. Do not use this for passwords,
+          private documents, or other sensitive information. Some destination
+          sites may block redirects, and the challenge requires JavaScript and
+          a successful database lookup; audio may be blocked by browser
+          settings.
+        </p>
+      </details>
       <form id="generator-form">
         <input
           id="destination-input"

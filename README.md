@@ -24,27 +24,21 @@ If they don't...
 
 ### How it works
 
-The URL itself contains the destination:
+The generator creates a version 4 UUID with `crypto.randomUUID()`, then sends
+that UUID and the HTTPS destination to `create-link.php`. The PHP endpoint
+stores the mapping in MySQL and returns a link such as:
 
 ```text
-https://limbo.gt.tc/https://example.com
+https://limbo.gt.tc/?link=8199829c-4905-4bbc-9adc-426971acbd76
 ```
 
-Play the challenge → choose the correct key → get redirected to:
+When the link is opened, `script.js` calls `resolve-link.php` to retrieve the
+destination. The destination is not placed in the browser URL. After the
+challenge is completed, the browser redirects to the stored destination.
 
-```text
-https://example.com
-```
-
-For URLs containing a query string, use the URL exactly as shown:
-
-```text
-https://limbo.gt.tc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
-```
-
-The custom `404.html` must be present in the branch and folder published by
-GitHub Pages. It converts the extra path into a hash parameter before loading
-the game, so destinations containing `?` continue to work.
+The query-string format is intentional. InfinityFree serves its own 404 page
+for unknown path URLs such as `/UUID`, so a query link is used instead of
+`https://limbo.gt.tc/UUID`.
 
 So you can think of it as:
 
@@ -98,11 +92,13 @@ That kinda defeats the entire point.
 
 ### The fix
 
-I added a custom **`404.html` fallback**.
+I initially added a custom **`404.html` fallback**.
 
 Instead of letting GitHub Pages stop at its default 404 page, the fallback allows the `limbo.keys` app to load and lets the JavaScript read the destination from the URL.
 
-The result:
+That fallback remains useful for legacy path-based links, but the current
+InfinityFree deployment uses query links because the host can intercept
+unknown paths before `404.html` runs.
 
 ```text
 GitHub Pages
@@ -143,7 +139,7 @@ Nothing fancy:
 * HTML
 * CSS
 * JavaScript
-* GitHub Pages
+* PHP and MySQL on InfinityFree
 * A tiny bit of insanity
 
 The interface uses eight SVG key icons, with a black background and glowing color effects.
@@ -152,26 +148,44 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 ## 🚀 Try it
 
 ```text
-https://limbo.gt.tc/https://example.com
+https://limbo.gt.tc
 ```
 
 Replace `https://example.com` with whatever destination you want.
 
-For example:
+Enter an HTTPS destination in the generator. It creates a database-backed
+link like:
 
 ```text
-https://limbo.gt.tc/https://github.com
+https://limbo.gt.tc/?link=UUID
 ```
 
-The destination is extracted from everything after `/limbo.keys/` on the old GitHub Pages URL or from the root path on `limbo.gt.tc`. The generator only accepts targets beginning with `https://`.
+Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
+fragments are supported. The generator rejects HTTP and other protocols.
 
-## ⚠️ A small warning
+## ⚠️ Important limitations and warnings
 
-This is intentionally **not a normal redirect**.
+* A UUID is an opaque identifier, not encryption or access control.
+* Anyone who obtains a generated link can use it. Treat links as bearer links.
+* The destination is stored in the site's MySQL database.
+* Links currently do not expire automatically because `expires_at` is optional
+  and generated records leave it `NULL`.
+* Links stop working if the website, PHP endpoints, database, or hosting
+  account is unavailable.
+* Only HTTPS destinations are accepted; some sites may block redirects or
+  refuse to load after a challenge.
+* The challenge requires JavaScript. Audio may be blocked until the user
+  interacts with the page.
+* A wrong key restarts the challenge. Closing the page loses the current run.
+* Do not use this for passwords, private documents, authentication links,
+  payment links, or other sensitive destinations.
+* The service does not currently provide destination previews, user accounts,
+  link management, rate limiting, or a deletion interface.
+* The site owner is responsible for the destinations stored and shared
+  through the service.
 
-If someone sends you a `limbo.keys` link, you're signing up for the challenge before reaching the actual website.
-
-You have been warned.
+If someone sends you a Limbo link, verify that you trust the sender before
+opening it.
 
 ---
 
@@ -183,7 +197,9 @@ This project is based on the work by **finnchillah**:
 
 👉 [Original CodePen — Limbo Keys](https://codepen.io/finnchillah/full/mdoGxXd)
 
-I adapted the original project for GitHub Pages and added the URL-based redirect functionality and 404 fallback.
+I adapted the original project, added the original URL-based redirect
+functionality and 404 fallback, then replaced it with UUID-backed PHP/MySQL
+links for the InfinityFree deployment.
 
 Huge credit to the original creator for the core idea and implementation.
 
@@ -202,8 +218,15 @@ limbo.keys/
 ├── 404.html        # GitHub Pages fallback
 ├── style.css       # Styling + animations
 ├── script.js       # Game logic + redirect system
+├── db.php          # Server-only MySQL connection configuration
+├── create-link.php # Creates UUID-to-destination records
+├── resolve-link.php # Resolves UUIDs after the link is opened
 └── limbo.mp3       # Audio
 ```
+
+`db.php` must never contain real credentials in a public repository. Keep the
+server copy on InfinityFree configured with the database password, and keep
+the local or public copy redacted.
 
 ## 🧠 The interesting part
 

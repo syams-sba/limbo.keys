@@ -11,13 +11,13 @@
 	const targetPath = markerIndex === -1
 		? window.location.pathname.replace(/^\/+/, '')
 		: window.location.pathname.slice(markerIndex + marker.length);
-	const target = targetPath + window.location.search + window.location.hash;
 	const appUrl = markerIndex === -1
 		? '/'
 		: window.location.pathname.slice(0, markerIndex + marker.length);
+	const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetPath);
 
 	window.location.replace(
-		appUrl + (targetPath ? '#target=' + encodeURIComponent(target) : '')
+		appUrl + (isUuid ? '#link=' + encodeURIComponent(targetPath) : '')
 	);
 </script>
 </body>
