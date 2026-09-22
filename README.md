@@ -101,11 +101,13 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 
 ## 🚀 Try it
 
+Go to this website
+
 ```text
 https://limbo.gt.tc
 ```
 
-Replace `https://example.com` with whatever destination you want.
+Put whatever destination you want.
 
 Enter an HTTPS destination in the generator. It creates a database-backed
 link like:
@@ -113,6 +115,7 @@ link like:
 ```text
 https://limbo.gt.tc/?link=UUID
 ```
+## NOTE
 
 Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
 fragments are supported. The generator rejects HTTP and other protocols.
