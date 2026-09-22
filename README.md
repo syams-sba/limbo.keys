@@ -74,52 +74,6 @@ The game gets increasingly chaotic with:
 
 The movement patterns and correct-key tracking are handled in JavaScript.
 
-## 🛠️ The 404 Problem
-
-There was one problem with the redirect idea:
-
-GitHub Pages would see a URL like
-
-```text
-/limbo.keys/https://example.com
-```
-
-as a page that doesn't exist.
-
-So GitHub Pages would return its **404 page before `script.js` ever got a chance to run**.
-
-That kinda defeats the entire point.
-
-### The fix
-
-I initially added a custom **`404.html` fallback**.
-
-Instead of letting GitHub Pages stop at its default 404 page, the fallback allows the `limbo.keys` app to load and lets the JavaScript read the destination from the URL.
-
-That fallback remains useful for legacy path-based links, but the current
-InfinityFree deployment uses query links because the host can intercept
-unknown paths before `404.html` runs.
-
-```text
-GitHub Pages
-     ↓
-    404?
-     ↓
- custom 404.html
-     ↓
- limbo.keys
-     ↓
-   🎮 GAME
-     ↓
- CORRECT KEY
-     ↓
- destination URL
-```
-
-So the 404 page isn't really an error here.
-
-**It's part of the game.**
-
 ## ✨ Why I made this
 
 This is mostly a **fun experiment / web toy**, inspired by the memory-based gameplay of **Limbo** in Geometry Dash.
