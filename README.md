@@ -29,7 +29,7 @@ that UUID and the HTTPS destination to `create-link.php`. The PHP endpoint
 stores the mapping in MySQL and returns a link such as:
 
 ```text
-https://limbo.gt.tc/?link=8199829c-4905-4bbc-9adc-426971acbd76
+https://limbo.gt.tc/?link=ca7a00f2-034d-4920-b8e0-ed2f58a3e7d7
 ```
 
 When the link is opened, `script.js` calls `resolve-link.php` to retrieve the
