@@ -1,4 +1,4 @@
-# 🔑 limbo.keys
+# 🔑 limbo keys
 
 > **You have one job. Pick the right key.**
 
@@ -10,7 +10,7 @@ It isn't.
 
 ## 🎮 What is this?
 
-`limbo.keys` is basically a **redirect minigame**.
+`limbo keys` is basically a **redirect minigame**.
 
 You give it a destination URL, and the player has to survive a sequence of moving, rotating, glowing keys before choosing the correct one.
 
