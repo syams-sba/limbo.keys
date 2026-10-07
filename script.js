@@ -88,6 +88,33 @@ const movements = [
 	[[0, 0], [-1, 1], [1, -1], [-1, 1], [1, -1], [-1, 1], [1, -1], [0, 0]]    // big diagonal swap bl/tr
 ]
 const doMove = [true, true, true, true, true, false, false, true, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, true, true, true, true, true, false];
+
+function animateKeyToPosition(keyIndex, fromPosition, toPosition, duration, viaOffset = null) {
+	const offset = (position) => {
+		const x = (position % 2) - (keyIndex % 2);
+		const y = Math.floor(position / 2) - Math.floor(keyIndex / 2);
+		return `${x * 20}vh ${y * 20}vh`;
+	};
+	const fromOffset = offset(fromPosition).split(' ');
+	const keyframes = [{translate: fromOffset.join(' ')}];
+	if (viaOffset) {
+		keyframes.push({
+			translate: `${parseFloat(fromOffset[0]) + viaOffset[0]}vh ${parseFloat(fromOffset[1]) + viaOffset[1]}vh`
+		});
+	}
+	const targetOffset = offset(toPosition);
+	keyframes.push({translate: targetOffset});
+	const animation = keys[keyIndex].animate(keyframes, {
+		duration,
+		easing: 'ease-in-out',
+		fill: 'forwards'
+	});
+	animation.onfinish = () => {
+		keys[keyIndex].style.translate = targetOffset;
+		animation.cancel();
+	};
+}
+
 if (isTargetPage()) {
 	linkGenerator.hidden = true;
 	startBtn.classList.remove('hidden');
@@ -138,6 +165,22 @@ startBtn.onclick = () => {
 	window.setTimeout(() => {
 		container.classList.remove('hidden');
 		window.setTimeout(() => {
+			let keysAtPosition = Array.from(keys, (_, index) => index);
+			const moveKeys = (movement, duration, swapHalves = false) => {
+				const nextKeysAtPosition = new Array(keys.length);
+				for (let position = 0; position < keys.length; position++) {
+					const keyIndex = keysAtPosition[position];
+					const destination = swapHalves
+						? (position + 4) % keys.length
+						: position + movement[position][0] + movement[position][1] * 2;
+					nextKeysAtPosition[destination] = keyIndex;
+					if (destination !== position) {
+						const viaOffset = swapHalves && position >= 4 ? [-30, -20] : null;
+						animateKeyToPosition(keyIndex, position, destination, duration, viaOffset);
+					}
+				}
+				keysAtPosition = nextKeysAtPosition;
+			};
 			let correctKey = Math.floor(Math.random() * 8);
 			keys[correctKey].style.setProperty('--col', '#0f0');
 			window.setTimeout(() => {
@@ -147,24 +190,10 @@ startBtn.onclick = () => {
 					let moveInterval = window.setInterval(() => {
 						if(doMove[i]) {
 							let movement = movements[Math.floor(Math.random() * movements.length)];
-							for(let j = 0; j < 8; j++) {
-								if(movement[j][0] !== 0 || movement[j][1] !== 0) {
-									keys[j].animate([{translate: '0px 0px'}, {translate: `${movement[j][0] * 20}vh ${movement[j][1] * 20}vh`}],
-												   {duration: 270, easing: 'ease-in-out'});
-								}
-							}
-							correctKey += movement[correctKey][0] + movement[correctKey][1] * 2;
+							moveKeys(movement, 250);
 						}
 						else if(i === 5) {
-							for(let j = 0; j < 4; j++) {
-								keys[j].animate([{translate: '0px 0px'}, {translate: '0px 40vh'}],
-											   {duration: 540, easing: 'ease-in-out'});
-							}
-							for(let j = 4; j < 8; j++) {
-								keys[j].animate([{translate: '0px 0px'}, {translate: '-30vh -20vh'}, {translate: '0px -40vh'}],
-											   {duration: 540, easing: 'ease-in-out'});
-							}
-							correctKey = (correctKey + 4) % 8
+							moveKeys(null, 520, true);
 						}
 						else if(i === 10) {
                             container.animate([{rotate: '0deg'}, {rotate: '180deg'}],
@@ -189,6 +218,9 @@ startBtn.onclick = () => {
 									window.setTimeout(() => {
 										container.classList.add('hidden');
 										window.setTimeout(() => {
+											for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+												keys[keyIndex].style.translate = '0px 0px';
+											}
 											container.className = 'rotary-container';
 											container.animate([{rotate: '0deg'}, {rotate: '360deg'}],
 															 {duration: 15000, iterations: Infinity});

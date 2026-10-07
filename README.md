@@ -1,4 +1,4 @@
-# 🔑 limbo keys
+# 🔑 limbo.keys
 
 > **You have one job. Pick the right key.**
 
@@ -10,7 +10,7 @@ It isn't.
 
 ## 🎮 What is this?
 
-`limbo keys` is basically a **redirect minigame**.
+`limbo.keys` is basically a **redirect minigame**.
 
 You give it a destination URL, and the player has to survive a sequence of moving, rotating, glowing keys before choosing the correct one.
 
@@ -29,7 +29,7 @@ that UUID and the HTTPS destination to `create-link.php`. The PHP endpoint
 stores the mapping in MySQL and returns a link such as:
 
 ```text
-https://limbo.gt.tc/?link=ca7a00f2-034d-4920-b8e0-ed2f58a3e7d7
+https://limbo.gt.tc/?link=8199829c-4905-4bbc-9adc-426971acbd76
 ```
 
 When the link is opened, `script.js` calls `resolve-link.php` to retrieve the
@@ -74,6 +74,52 @@ The game gets increasingly chaotic with:
 
 The movement patterns and correct-key tracking are handled in JavaScript.
 
+## 🛠️ The 404 Problem
+
+There was one problem with the redirect idea:
+
+GitHub Pages would see a URL like
+
+```text
+/limbo.keys/https://example.com
+```
+
+as a page that doesn't exist.
+
+So GitHub Pages would return its **404 page before `script.js` ever got a chance to run**.
+
+That kinda defeats the entire point.
+
+### The fix
+
+I initially added a custom **`404.html` fallback**.
+
+Instead of letting GitHub Pages stop at its default 404 page, the fallback allows the `limbo.keys` app to load and lets the JavaScript read the destination from the URL.
+
+That fallback remains useful for legacy path-based links, but the current
+InfinityFree deployment uses query links because the host can intercept
+unknown paths before `404.html` runs.
+
+```text
+GitHub Pages
+     ↓
+    404?
+     ↓
+ custom 404.html
+     ↓
+ limbo.keys
+     ↓
+   🎮 GAME
+     ↓
+ CORRECT KEY
+     ↓
+ destination URL
+```
+
+So the 404 page isn't really an error here.
+
+**It's part of the game.**
+
 ## ✨ Why I made this
 
 This is mostly a **fun experiment / web toy**, inspired by the memory-based gameplay of **Limbo** in Geometry Dash.
@@ -101,13 +147,11 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 
 ## 🚀 Try it
 
-Go to this website
-
 ```text
 https://limbo.gt.tc
 ```
 
-Put whatever destination you want.
+Replace `https://example.com` with whatever destination you want.
 
 Enter an HTTPS destination in the generator. It creates a database-backed
 link like:
@@ -115,7 +159,6 @@ link like:
 ```text
 https://limbo.gt.tc/?link=UUID
 ```
-## NOTE
 
 Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
 fragments are supported. The generator rejects HTTP and other protocols.
@@ -172,7 +215,7 @@ by **Mindcap**
 ```text
 limbo.keys/
 ├── index.html      # The game interface
-├── 404.html        # Fallback
+├── 404.html        # GitHub Pages fallback
 ├── style.css       # Styling + animations
 ├── script.js       # Game logic + redirect system
 ├── db.php          # Server-only MySQL connection configuration
@@ -189,7 +232,11 @@ the local or public copy redacted.
 
 The correct key is tracked even while the keys are moving.
 
-The game randomly chooses a starting key, then updates its position whenever a movement pattern is applied.
+The game randomly chooses a starting key and tracks that key as each shuffle
+moves it to a new slot. Movement animations are committed to the keys' positions
+so the visual arrangement stays in sync with the answer. Before the final
+selection, the keys return to their numbered positions and the game checks
+whether the selected key is the one that was tracked.
 
 Eventually, the player gets a final selection screen.
 
