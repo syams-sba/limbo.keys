@@ -81,20 +81,6 @@ This project is hosted on InfinityFree and uses PHP, MySQL, and Apache
 path visible. If short paths are unavailable on a particular host
 configuration, use the query-link format `/?link=my-custom-link`.
 
-### Deploying to InfinityFree
-
-1. Upload the site files into the domain's `htdocs` directory, keeping
-   `.htaccess` alongside `index.html`. Make sure the FTP client shows hidden
-   files so `.htaccess` is uploaded.
-2. Create a MySQL database in the InfinityFree control panel. Import
-   `database-migration.sql` once using phpMyAdmin for the existing
-   `short_links` table.
-3. Set the database host, name, username, and password supplied by
-   InfinityFree in the server copy of `db.php`. The values in this project's
-   redacted `db.php` are placeholders, not working credentials.
-4. Open the domain over HTTPS and create a test link. Confirm both the
-   short-path URL and its challenge resolve before sharing it.
-
 The `.htaccess` rules rely on Apache `mod_rewrite`. If a short path returns an
 InfinityFree 404, check that `.htaccess` uploaded correctly and that rewrites
 are enabled for the domain. The query-link format can be used as a fallback.
@@ -126,9 +112,10 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 
 ## 🚀 Try it
 
-```text
-https://limbo.gt.tc
-```
+Go to this site
+
+[https://limbo.gt.tc](https://limbo.gt.tc)
+
 
 Replace `https://example.com` with whatever destination you want.
 
@@ -146,12 +133,6 @@ https://limbo.gt.tc/my-custom-link
 
 Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
 fragments are supported. The generator rejects HTTP and other protocols.
-
-Before deploying the updated PHP endpoints, run
-[`database-migration.sql`](./database-migration.sql) once against the existing
-MySQL database to add the optional display columns. The included `.htaccess`
-rewrites short paths to the app while leaving existing files and directories
-untouched.
 
 ## ⚠️ Important limitations and warnings
 
