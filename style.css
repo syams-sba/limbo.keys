@@ -31,7 +31,11 @@ body.generator-page .container,
 body.generator-page #wrong,
 body.generator-page #correct,
 body.generator-page #link-title,
-body.generator-page #challenge-hint {
+body.generator-page #challenge-hint,
+body.generator-page #create-own-link {
+	display: none;
+}
+#create-own-link[hidden] {
 	display: none;
 }
 #link-generator h1 {
@@ -156,6 +160,17 @@ body.generator-page #challenge-hint {
 }
 #start-button:active {
 	scale: .95;
+}
+#create-own-link {
+	position: absolute;
+	top: calc(50% + clamp(4rem, 10vh, 5.5rem));
+	color: #f00;
+	font: .9rem Arial, sans-serif;
+	text-align: center;
+	text-shadow: 0 0 1vh #f00;
+}
+#create-own-link:hover {
+	color: #ff0;
 }
 #start-button.hidden {
 	translate: 0px 60vh;

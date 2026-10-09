@@ -18,6 +18,7 @@ const copyLink = document.getElementById('copy-link');
 const copyStatus = document.getElementById('copy-status');
 const linkTitle = document.getElementById('link-title');
 const challengeHint = document.getElementById('challenge-hint');
+const createOwnLink = document.getElementById('create-own-link');
 let challengeInProgress = false;
 
 function isTargetPage() {
@@ -224,6 +225,7 @@ copyLink.onclick = async () => {
 
 startBtn.onclick = () => {
 	challengeInProgress = true;
+	createOwnLink.hidden = true;
 	linkTitle.hidden = true;
 	audio.currentTime = 0;
 	audio.play();
@@ -330,6 +332,7 @@ startBtn.onclick = () => {
 														window.setTimeout(() => {
 															challengeInProgress = false;
 															linkTitle.hidden = !linkTitle.textContent;
+															createOwnLink.hidden = false;
 															startBtn.classList.remove('hidden');
 														}, 2000);
 													}
