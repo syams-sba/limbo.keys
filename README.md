@@ -207,8 +207,8 @@ The correct key is tracked even while the keys are moving.
 The game randomly chooses a starting key and tracks that key as each shuffle
 moves it to a new slot. Movement animations are committed to the keys' positions
 so the visual arrangement stays in sync with the answer. Before the final
-selection, the keys return to their numbered positions and the game checks
-whether the selected key is the one that was tracked.
+selection, the keys are reordered to preserve their shuffled positions, and
+the game checks the selected slot against the tracked key's final position.
 
 Eventually, the player gets a final selection screen.
 
@@ -226,10 +226,10 @@ Click the wrong one:
 WRONG
 ```
 
-and you're sent back to try again.
+and you're sentback to try again.
 
 ## 🔑
-
+ 
 That's pretty much it.
 
 It's a link.

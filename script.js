@@ -116,8 +116,8 @@ const movements = [
 ]
 const doMove = [true, true, true, true, true, false, false, true, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, true, true, true, true, true, false];
 
-function animateKeyToPosition(keyIndex, fromPosition, toPosition, duration, viaOffset = null) {
-	const keySize = parseFloat(getComputedStyle(keys[keyIndex]).width);
+function animateKeyToPosition(keyElement, keyIndex, fromPosition, toPosition, duration, viaOffset = null) {
+	const keySize = parseFloat(getComputedStyle(keyElement).width);
 	const offset = (position) => {
 		const x = (position % 2) - (keyIndex % 2);
 		const y = Math.floor(position / 2) - Math.floor(keyIndex / 2);
@@ -133,13 +133,13 @@ function animateKeyToPosition(keyIndex, fromPosition, toPosition, duration, viaO
 	}
 	const targetOffset = offset(toPosition);
 	keyframes.push({translate: targetOffset});
-	const animation = keys[keyIndex].animate(keyframes, {
+	const animation = keyElement.animate(keyframes, {
 		duration,
 		easing: 'ease-in-out',
 		fill: 'forwards'
 	});
 	animation.onfinish = () => {
-		keys[keyIndex].style.translate = targetOffset;
+		keyElement.style.translate = targetOffset;
 		animation.cancel();
 	};
 }
@@ -231,6 +231,7 @@ startBtn.onclick = () => {
 	window.setTimeout(() => {
 		container.classList.remove('hidden');
 		window.setTimeout(() => {
+			const keyElements = Array.from(keys);
 			let keysAtPosition = Array.from(keys, (_, index) => index);
 			const moveKeys = (movement, duration, swapHalves = false) => {
 				const nextKeysAtPosition = new Array(keys.length);
@@ -242,7 +243,7 @@ startBtn.onclick = () => {
 					nextKeysAtPosition[destination] = keyIndex;
 					if (destination !== position) {
 						const viaOffset = swapHalves && position >= 4 ? [-30, -20] : null;
-						animateKeyToPosition(keyIndex, position, destination, duration, viaOffset);
+						animateKeyToPosition(keyElements[keyIndex], keyIndex, position, destination, duration, viaOffset);
 					}
 				}
 				keysAtPosition = nextKeysAtPosition;
@@ -284,8 +285,11 @@ startBtn.onclick = () => {
 									window.setTimeout(() => {
 										container.classList.add('hidden');
 										window.setTimeout(() => {
-											for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
-												keys[keyIndex].style.translate = '0px 0px';
+											const correctPosition = keysAtPosition.indexOf(correctKey);
+											for (const keyIndex of keysAtPosition) {
+												const keyElement = keyElements[keyIndex];
+												keyElement.style.translate = '0px 0px';
+												container.appendChild(keyElement);
 											}
 											container.className = 'rotary-container';
 											challengeHint.hidden = challengeHint.dataset.enabled !== 'true';
@@ -313,11 +317,11 @@ startBtn.onclick = () => {
 												document.body.animate([{backgroundColor: keys[k].style.getPropertyValue('--col')}, {backgroundColor: '#000'}],
 																	 {duration: 1000});
 												window.setTimeout(() => {
-													let text = (k === correctKey) ? correct : wrong;
-													text.style.color = keys[correctKey].style.getPropertyValue('--col');
+													let text = (k === correctPosition) ? correct : wrong;
+													text.style.color = keys[correctPosition].style.getPropertyValue('--col');
 													text.animate([{opacity: 1}, {opacity: 0}],
 																{duration: 2000});
-													if (k === correctKey) {
+													if (k === correctPosition) {
 														window.setTimeout(async () => {
 															await linkResolution;
 															window.location.href = resolvedRedirectUrl || getRedirectUrl();
