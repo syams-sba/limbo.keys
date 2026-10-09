@@ -2,6 +2,7 @@
 
 body {
 	height: 100vh;
+	height: 100dvh;
 	margin: 0px;
 	display: flex;
 	align-items: center;
@@ -12,9 +13,26 @@ body {
 
 #link-generator {
 	width: min(90vw, 700px);
+	padding: 2vh 0;
 	color: #fff;
 	text-align: center;
 	font-family: Roboto, Arial, sans-serif;
+}
+
+body.generator-page {
+	height: auto;
+	min-height: 100vh;
+	min-height: 100dvh;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+body.generator-page #start-button,
+body.generator-page .container,
+body.generator-page #wrong,
+body.generator-page #correct,
+body.generator-page #link-title,
+body.generator-page #challenge-hint {
+	display: none;
 }
 #link-generator h1 {
 	margin: 0 0 1vh;
@@ -68,9 +86,11 @@ body {
 	flex-wrap: wrap;
 	margin-top: 3vh;
 }
-#destination-input, #link-output {
+#destination-input, #custom-id-input, #page-title-input, #button-text-input,
+#link-output {
 	flex: 1 1 400px;
 	min-width: 0;
+	box-sizing: border-box;
 	padding: 1.5vh 2vh;
 	border: 2px solid #f00;
 	border-radius: 1vh;
@@ -95,14 +115,37 @@ body {
 	color: #0f0;
 	font: 1rem Arial, sans-serif;
 }
+#form-status {
+	width: 100%;
+	color: #f88;
+	font: 1rem Arial, sans-serif;
+}
+.checkbox-option {
+	flex: 1 1 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: .75rem;
+	color: #fff;
+	font: 1rem Arial, sans-serif;
+	cursor: pointer;
+}
+.checkbox-option input {
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: #f00;
+}
 
 #start-button {
 	padding: 2vh 5vh;
 	border-radius: 4vh;
 	position: absolute;
+	max-width: 90vw;
+	box-sizing: border-box;
 	background-color: #f00;
-	font-size: 10vh;
+	font-size: clamp(1.5rem, 10vh, 4rem);
 	font-family: Roboto, Arial, sans-serif;
+	text-align: center;
 	cursor: pointer;
 	transition: scale .2s ease, background-color .2s ease, translate .3s ease-in-out;
 	user-select: none;
@@ -118,10 +161,32 @@ body {
 	translate: 0px 60vh;
 	pointer-events: none;
 }
+#link-title {
+	position: absolute;
+	bottom: calc(50% + clamp(5rem, 10vh, 7rem));
+	width: min(90vw, 700px);
+	padding: 0 1rem;
+	box-sizing: border-box;
+	color: #fff;
+	font: 900 clamp(1.2rem, 5vh, 2.5rem) Roboto, Arial, sans-serif;
+	text-align: center;
+	text-shadow: 0 0 2vh #fff;
+}
+#challenge-hint {
+	position: absolute;
+	top: calc(50% + 31vh);
+	width: 90vw;
+	margin: 0;
+	color: #fff;
+	font: .85rem Arial, sans-serif;
+	text-align: center;
+	text-shadow: 0 0 1vh #fff;
+	pointer-events: none;
+}
 
 .container {
-	width: 40vh;
-	height: 80vh;
+	width: min(40vh, 44vw);
+	height: min(80vh, 88vw);
 	position: absolute;
 	display: flex;
 	flex-wrap: wrap;
@@ -136,13 +201,20 @@ body {
 .rotary-container:not(.hidden) {
 	transition: opacity 1.3s ease;
 }
+.rotary-container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 0;
+	height: 0;
+}
 .rotary-container.hidden {
 	opacity: 0;
 }
 
 .key {
-	width: 20vh;
-	height: 20vh;
+	width: min(20vh, 22vw);
+	height: min(20vh, 22vw);
 	--col: #f00;
 	color: var(--col);
 	text-shadow: 0px 0px 8vh var(--col);
@@ -163,8 +235,8 @@ body {
 }
 .rotary-container > .key {
 	position: absolute;
-	left: calc(20vmin * var(--x) - 10vh);
-	top: calc(20vmin * var(--y) - 10vh);
+	left: calc(20vmin * var(--x) - min(10vh, 11vw));
+	top: calc(20vmin * var(--y) - min(10vh, 11vw));
 }
 .rotary-container > .key:nth-child(1) {
 	--x: sqrt(.5);
@@ -205,4 +277,56 @@ body {
 	font-size: 18vw;
 	cursor: default;
 	pointer-events: none;
+}
+
+@media (max-width: 600px) {
+	#link-generator {
+		width: 92vw;
+		padding: max(1rem, env(safe-area-inset-top)) 0 max(1rem, env(safe-area-inset-bottom));
+	}
+	#link-generator h1 {
+		font-size: clamp(2.75rem, 15vw, 4.5rem);
+	}
+	#link-generator > p {
+		margin: .75rem 0;
+	}
+	#generator-form, #generated-link {
+		gap: .65rem;
+		margin-top: 1rem;
+	}
+	#destination-input, #custom-id-input, #page-title-input, #button-text-input,
+	#link-output {
+		flex-basis: 100%;
+		padding: .85rem 1rem;
+		font-size: 1rem;
+	}
+	#generator-form button, #copy-link {
+		width: 100%;
+		min-height: 48px;
+		padding: .8rem 1rem;
+	}
+	.checkbox-option {
+		justify-content: flex-start;
+		text-align: left;
+		line-height: 1.4;
+	}
+	#link-title {
+		bottom: calc(50% + 5.5rem);
+		width: 92vw;
+		font-size: clamp(1.15rem, 6vw, 2rem);
+	}
+	#start-button {
+		max-width: 84vw;
+		padding: 1rem 1.25rem;
+		font-size: clamp(1.35rem, 8vw, 2.5rem);
+		border-radius: 2rem;
+	}
+	#challenge-hint {
+		top: calc(50% + min(31vh, 35vw));
+		width: 92vw;
+		padding: 0 .5rem;
+		box-sizing: border-box;
+		font-size: .75rem;
+		line-height: 1.35;
+	}
 }

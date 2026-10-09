@@ -11,15 +11,43 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
+if (!is_array($body)) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'Invalid request body.']));
+}
+
 $id = $body['id'] ?? '';
 $destination = $body['destination'] ?? '';
+$options = [
+    'button_text' => ['buttonText', 40],
+    'page_title' => ['pageTitle', 80],
+];
 
-if (!is_string($id) || !preg_match(
-    '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
-    $id
-)) {
+if (!is_string($id) || !preg_match('/^[a-z0-9-]{1,36}$/i', $id)) {
     http_response_code(400);
-    exit(json_encode(['error' => 'Invalid link ID.']));
+    exit(json_encode(['error' => 'Link name must use only letters, numbers, and hyphens (up to 36 characters).']));
+}
+
+$id = strtolower($id);
+$linkOptions = [];
+foreach ($options as $column => [$field, $maxLength]) {
+    $value = $body[$field] ?? '';
+    if (!is_string($value)) {
+        http_response_code(400);
+        exit(json_encode(['error' => 'Invalid link options.']));
+    }
+    $value = trim($value);
+    if (strlen($value) > $maxLength) {
+        http_response_code(400);
+        exit(json_encode(['error' => 'A link option is too long.']));
+    }
+    $linkOptions[$column] = $value === '' ? null : $value;
+}
+
+$showHint = $body['showHint'] ?? false;
+if (!is_bool($showHint)) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'Invalid hint setting.']));
 }
 
 if (!is_string($destination) || !filter_var($destination, FILTER_VALIDATE_URL)) {
@@ -35,18 +63,24 @@ if (strtolower($url['scheme'] ?? '') !== 'https') {
 
 try {
     $statement = $pdo->prepare(
-        'INSERT INTO short_links (id, destination) VALUES (:id, :destination)'
+        'INSERT INTO short_links
+            (id, destination, button_text, page_title, show_hint)
+         VALUES
+            (:id, :destination, :button_text, :page_title, :show_hint)'
     );
     $statement->execute([
-        ':id' => strtolower($id),
+        ':id' => $id,
         ':destination' => $destination,
+        ':button_text' => $linkOptions['button_text'],
+        ':page_title' => $linkOptions['page_title'],
+        ':show_hint' => $showHint ? 1 : 0,
     ]);
 
-    echo json_encode(['id' => strtolower($id)]);
+    echo json_encode(['id' => $id]);
 } catch (PDOException $error) {
     if (($error->errorInfo[1] ?? null) === 1062) {
         http_response_code(409);
-        exit(json_encode(['error' => 'Link ID collision. Please try again.']));
+        exit(json_encode(['error' => 'That link name already exists. Please choose another one.']));
     }
 
     http_response_code(500);

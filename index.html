@@ -3,20 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>limbo keys</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js?v=2" defer></script>
+    <title>limbo.gt.tc</title>
+    <link rel="stylesheet" href="style.css?v=3" />
+    <script src="script.js?v=3" defer></script>
   </head>
-  <body>
+  <body class="generator-page">
     <audio id="limbo-audio" src="limbo.mp3" preload="auto"></audio>
     <main id="link-generator">
-      <h1>limbo keys</h1>
-      <p>Enter a destination to create a challenge link.</p>
+      <h1>limbo.gt.tc</h1>
+      <p>Enter a destination to create a short link. Customize the name and challenge, or leave the options blank for the classic look.</p>
       <details class="generator-note">
         <summary>DISCLAIMER</summary>
         <p>
-          Only HTTPS destinations are accepted. Links are random UUIDs, not
-          encrypted, and anyone with a link can use it. The destination is
+          Only HTTPS destinations are accepted. Link names are identifiers,
+          not encryption, and anyone with a link can use it. The destination is
           stored on the site database, so links work only while this website
           and its database are available. Do not use this for passwords,
           private documents, or other sensitive information. Some destination
@@ -26,14 +26,16 @@
         </p>
       </details>
       <form id="generator-form">
-        <input
-          id="destination-input"
-          type="url"
-          placeholder="https://example.com"
-          autocomplete="off"
-          required
-        />
+        <input id="destination-input" type="url" placeholder="https://example.com" autocomplete="off" aria-label="Destination URL" required />
+        <input id="custom-id-input" type="text" placeholder="Custom link name (optional)" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-label="Custom link name (optional)" />
+        <input id="page-title-input" type="text" placeholder="Title above the button (optional)" maxlength="80" aria-label="Title above the button (optional)" />
+        <input id="button-text-input" type="text" placeholder="Button text (optional, default: GO TO SITE)" maxlength="40" aria-label="Button text (optional, default: GO TO SITE)" />
+        <label class="checkbox-option">
+          <input id="show-hint-input" type="checkbox" />
+          Show “click anywhere when the correct key flashes” below the keys
+        </label>
         <button type="submit">CREATE LINK</button>
+        <span id="form-status" role="status" aria-live="polite"></span>
       </form>
       <div id="generated-link" hidden>
         <input id="link-output" type="text" readonly />
@@ -169,8 +171,10 @@
         </svg>
       </div>
     </div>
+    <p id="challenge-hint" hidden>click anywhere when the correct key flashes</p>
     <div id="wrong">WRONG</div>
     <div id="correct">CORRECT</div>
+    <div id="link-title" hidden></div>
     <div id="start-button" class="hidden">GO TO SITE</div>
   </body>
 </html>

@@ -24,21 +24,20 @@ If they don't...
 
 ### How it works
 
-The generator creates a version 4 UUID with `crypto.randomUUID()`, then sends
-that UUID and the HTTPS destination to `create-link.php`. The PHP endpoint
-stores the mapping in MySQL and returns a link such as:
+The generator creates an eight-character short name (or uses a custom name)
+and sends it with the HTTPS destination to `create-link.php`. Optional button
+text, title, and a checkbox for the fixed challenge hint are stored alongside
+it in MySQL. A link looks like:
 
 ```text
-https://limbo.gt.tc/?link=8199829c-4905-4bbc-9adc-426971acbd76
+https://limbo.gt.tc/ia9ur38r
 ```
 
 When the link is opened, `script.js` calls `resolve-link.php` to retrieve the
-destination. The destination is not placed in the browser URL. After the
-challenge is completed, the browser redirects to the stored destination.
-
-The query-string format is intentional. InfinityFree serves its own 404 page
-for unknown path URLs such as `/UUID`, so a query link is used instead of
-`https://limbo.gt.tc/UUID`.
+destination and optional display settings. The destination is not placed in
+the browser URL. After the challenge is completed, the browser redirects to
+the stored destination. Existing query links such as `/?link=UUID` continue
+to work.
 
 So you can think of it as:
 
@@ -74,6 +73,32 @@ The game gets increasingly chaotic with:
 
 The movement patterns and correct-key tracking are handled in JavaScript.
 
+## 🔗 Hosting on InfinityFree
+
+This project is hosted on InfinityFree and uses PHP, MySQL, and Apache
+`.htaccess` rules. Short links such as `/my-custom-link` are routed by
+`.htaccess` to `index.html?link=my-custom-link`; the browser keeps the short
+path visible. If short paths are unavailable on a particular host
+configuration, use the query-link format `/?link=my-custom-link`.
+
+### Deploying to InfinityFree
+
+1. Upload the site files into the domain's `htdocs` directory, keeping
+   `.htaccess` alongside `index.html`. Make sure the FTP client shows hidden
+   files so `.htaccess` is uploaded.
+2. Create a MySQL database in the InfinityFree control panel. Import
+   `database-migration.sql` once using phpMyAdmin for the existing
+   `short_links` table.
+3. Set the database host, name, username, and password supplied by
+   InfinityFree in the server copy of `db.php`. The values in this project's
+   redacted `db.php` are placeholders, not working credentials.
+4. Open the domain over HTTPS and create a test link. Confirm both the
+   short-path URL and its challenge resolve before sharing it.
+
+The `.htaccess` rules rely on Apache `mod_rewrite`. If a short path returns an
+InfinityFree 404, check that `.htaccess` uploaded correctly and that rewrites
+are enabled for the domain. The query-link format can be used as a fallback.
+
 ## ✨ Why I made this
 
 This is mostly a **fun experiment / web toy**, inspired by the memory-based gameplay of **Limbo** in Geometry Dash.
@@ -101,27 +126,36 @@ The JavaScript handles the game sequence, animations, randomization, audio, key 
 
 ## 🚀 Try it
 
-go to this site.
-
 ```text
 https://limbo.gt.tc
 ```
 
 Replace `https://example.com` with whatever destination you want.
 
-Enter an HTTPS destination in the generator. It creates a database-backed
-link like:
+Enter an HTTPS destination in the generator. Leave the custom name blank for
+an automatically generated short link, or enter a name containing letters,
+numbers, and hyphens (up to 36 characters). Names are normalized to lowercase
+and must be unique. The optional title and button text customize the challenge.
+The checkbox enables the fixed “click anywhere when the correct key flashes”
+hint; leave it unchecked to retain the classic appearance. The
+generator creates a database-backed path link like:
 
 ```text
-https://limbo.gt.tc/?link=UUID
+https://limbo.gt.tc/my-custom-link
 ```
 
 Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
 fragments are supported. The generator rejects HTTP and other protocols.
 
+Before deploying the updated PHP endpoints, run
+[`database-migration.sql`](./database-migration.sql) once against the existing
+MySQL database to add the optional display columns. The included `.htaccess`
+rewrites short paths to the app while leaving existing files and directories
+untouched.
+
 ## ⚠️ Important limitations and warnings
 
-* A UUID is an opaque identifier, not encryption or access control.
+* A short or custom name is an identifier, not encryption or access control.
 * Anyone who obtains a generated link can use it. Treat links as bearer links.
 * The destination is stored in the site's MySQL database.
 * Links currently do not expire automatically because `expires_at` is optional
@@ -153,9 +187,8 @@ This project is based on the work by **finnchillah**:
 
 👉 [Original CodePen — Limbo Keys](https://codepen.io/finnchillah/full/mdoGxXd)
 
-I adapted the original project, added the original URL-based redirect
-functionality and 404 fallback, then replaced it with UUID-backed PHP/MySQL
-links for the InfinityFree deployment.
+I adapted the original project, added redirect functionality, then added
+database-backed PHP/MySQL links for the InfinityFree deployment.
 
 Huge credit to the original creator for the core idea and implementation.
 
@@ -171,18 +204,20 @@ by **Mindcap**
 ```text
 limbo.keys/
 ├── index.html      # The game interface
-├── 404.html        # GitHub Pages fallback
+├── 404.html        # Fallback for hosts that use a custom 404 page
 ├── style.css       # Styling + animations
 ├── script.js       # Game logic + redirect system
 ├── db.php          # Server-only MySQL connection configuration
-├── create-link.php # Creates UUID-to-destination records
-├── resolve-link.php # Resolves UUIDs after the link is opened
+├── create-link.php # Creates short-name-to-destination records
+├── resolve-link.php # Resolves links after they are opened
+├── .htaccess       # Rewrites short paths to the app
+├── database-migration.sql # Adds optional link display settings
 └── limbo.mp3       # Audio
 ```
 
 `db.php` must never contain real credentials in a public repository. Keep the
-server copy on InfinityFree configured with the database password, and keep
-the local or public copy redacted.
+server copy on InfinityFree configured with the database credentials, and
+keep any public or shared copy redacted.
 
 ## 🧠 The interesting part
 
