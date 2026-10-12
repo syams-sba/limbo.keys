@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>limbo.gt.tc</title>
-    <link rel="stylesheet" href="style.css?v=4" />
-    <script src="script.js?v=5" defer></script>
+    <link rel="stylesheet" href="style.css?v=5" />
+    <script src="script.js?v=6" defer></script>
   </head>
   <body class="generator-page">
     <audio id="limbo-audio" src="limbo.mp3" preload="auto"></audio>
@@ -30,10 +30,17 @@
         <input id="custom-id-input" type="text" placeholder="Custom link name (optional)" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-label="Custom link name (optional)" />
         <input id="page-title-input" type="text" placeholder="Title above the button (optional)" maxlength="80" aria-label="Title above the button (optional)" />
         <input id="button-text-input" type="text" placeholder="Button text (optional, default: GO TO SITE)" maxlength="40" aria-label="Button text (optional, default: GO TO SITE)" />
-        <label class="checkbox-option">
-          <input id="show-hint-input" type="checkbox" />
-          Show “click anywhere when the correct key flashes” below the keys
-        </label>
+        <div class="challenge-settings">
+          <fieldset class="key-mode-option">
+            <legend>Key mode</legend>
+            <label><input type="radio" name="key-mode" value="classic" checked /> Classic</label>
+            <label><input type="radio" name="key-mode" value="key-select" /> Key select</label>
+          </fieldset>
+          <label class="checkbox-option">
+            <input id="show-hint-input" type="checkbox" />
+            Show hint
+          </label>
+        </div>
         <button type="submit">CREATE LINK</button>
         <span id="form-status" role="status" aria-live="polite"></span>
       </form>

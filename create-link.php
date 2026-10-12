@@ -50,6 +50,12 @@ if (!is_bool($showHint)) {
     exit(json_encode(['error' => 'Invalid hint setting.']));
 }
 
+$keyMode = $body['keyMode'] ?? 'classic';
+if (!is_string($keyMode) || !in_array($keyMode, ['classic', 'key-select'], true)) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'Invalid key mode.']));
+}
+
 if (!is_string($destination) || !filter_var($destination, FILTER_VALIDATE_URL)) {
     http_response_code(400);
     exit(json_encode(['error' => 'Invalid destination URL.']));
@@ -64,9 +70,9 @@ if (strtolower($url['scheme'] ?? '') !== 'https') {
 try {
     $statement = $pdo->prepare(
         'INSERT INTO short_links
-            (id, destination, button_text, page_title, show_hint)
+            (id, destination, button_text, page_title, show_hint, key_mode)
          VALUES
-            (:id, :destination, :button_text, :page_title, :show_hint)'
+            (:id, :destination, :button_text, :page_title, :show_hint, :key_mode)'
     );
     $statement->execute([
         ':id' => $id,
@@ -74,6 +80,7 @@ try {
         ':button_text' => $linkOptions['button_text'],
         ':page_title' => $linkOptions['page_title'],
         ':show_hint' => $showHint ? 1 : 0,
+        ':key_mode' => $keyMode,
     ]);
 
     echo json_encode(['id' => $id]);

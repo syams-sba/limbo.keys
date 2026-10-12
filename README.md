@@ -26,8 +26,9 @@ If they don't...
 
 The generator creates an eight-character short name (or uses a custom name)
 and sends it with the HTTPS destination to `create-link.php`. Optional button
-text, title, and a checkbox for the fixed challenge hint are stored alongside
-it in MySQL. A link looks like:
+text, title, key mode, and an optional mode-specific hint are stored alongside
+it in MySQL. Classic mode keeps the original timing challenge, while Key select
+mode requires clicking the correct key. A link looks like:
 
 ```text
 https://limbo.gt.tc/ia9ur38r
@@ -59,7 +60,8 @@ So you can think of it as:
 2. Watch the keys.
 3. Try to keep track of the correct one.
 4. Wait for the final selection.
-5. Click a key.
+5. In Classic mode, click anywhere when the correct key flashes. In Key select
+   mode, click the correct key.
 6. Hope you remembered correctly.
 
 The game gets increasingly chaotic with:
@@ -80,6 +82,11 @@ This project is hosted on InfinityFree and uses PHP, MySQL, and Apache
 `.htaccess` to `index.html?link=my-custom-link`; the browser keeps the short
 path visible. If short paths are unavailable on a particular host
 configuration, use the query-link format `/?link=my-custom-link`.
+
+The short-link table must include the `key_mode` column for the updated
+endpoints. Apply the new column from `database-migration.sql`; if the earlier
+columns in that migration are already present, run only
+`ALTER TABLE short_links ADD COLUMN key_mode VARCHAR(16) NOT NULL DEFAULT 'classic';`.
 
 The `.htaccess` rules rely on Apache `mod_rewrite`. If a short path returns an
 InfinityFree 404, check that `.htaccess` uploaded correctly and that rewrites
@@ -119,13 +126,14 @@ Go to this site
 
 Replace `https://example.com` with whatever destination you want.
 
-Enter an HTTPS destination in the generator. Leave the custom name blank for
-an automatically generated short link, or enter a name containing letters,
+Enter an HTTPS destination in the generator. Choose Classic or Key select, and
+optionally enable the hint for the selected mode. Leave the custom name blank
+for an automatically generated short link, or enter a name containing letters,
 numbers, and hyphens (up to 36 characters). Names are normalized to lowercase
 and must be unique. The optional title and button text customize the challenge.
-The checkbox enables the fixed “click anywhere when the correct key flashes”
-hint; leave it unchecked to retain the classic appearance. The
-generator creates a database-backed path link like:
+The hint reads “Click anywhere when the correct key flashes” in Classic mode
+and “Click the correct key” in Key select mode. The generator creates a
+database-backed path link like:
 
 ```text
 https://limbo.gt.tc/my-custom-link
@@ -192,7 +200,7 @@ limbo.keys/
 ├── create-link.php # Creates short-name-to-destination records
 ├── resolve-link.php # Resolves links after they are opened
 ├── .htaccess       # Rewrites short paths to the app
-├── database-migration.sql # Adds optional link display settings
+├── database-migration.sql # Adds optional link settings and key mode
 └── limbo.mp3       # Audio
 ```
 

@@ -20,6 +20,16 @@ const linkTitle = document.getElementById('link-title');
 const challengeHint = document.getElementById('challenge-hint');
 const createOwnLink = document.getElementById('create-own-link');
 let challengeInProgress = false;
+let challengeMode = 'classic';
+
+function setChallengeMode(mode) {
+	challengeMode = mode === 'key-select' ? 'key-select' : 'classic';
+	challengeHint.textContent = challengeMode === 'key-select'
+		? 'Click the correct key'
+		: 'Click anywhere when the correct key flashes';
+}
+
+setChallengeMode(challengeMode);
 
 function isTargetPage() {
 	const hashParameters = new URLSearchParams(window.location.hash.slice(1));
@@ -93,6 +103,8 @@ const linkResolution = linkToken
 				linkTitle.hidden = challengeInProgress;
 			}
 			challengeHint.dataset.enabled = result.showHint === true ? 'true' : 'false';
+			setChallengeMode(result.keyMode);
+			startBtn.classList.remove('hidden');
 		})
 		.catch((error) => {
 			console.error(error);
@@ -148,7 +160,9 @@ function animateKeyToPosition(keyElement, keyIndex, fromPosition, toPosition, du
 if (isTargetPage()) {
 	document.body.classList.remove('generator-page');
 	linkGenerator.hidden = true;
-	startBtn.classList.remove('hidden');
+	if (!linkToken) {
+		startBtn.classList.remove('hidden');
+	}
 }
 
 generatorForm.onsubmit = async (event) => {
@@ -182,6 +196,7 @@ generatorForm.onsubmit = async (event) => {
 				pageTitle: pageTitleInput.value.trim(),
 				buttonText: buttonTextInput.value.trim(),
 				showHint: showHintInput.checked,
+				keyMode: document.querySelector('input[name="key-mode"]:checked').value,
 			}),
 		});
 		const result = await response.json();
@@ -225,6 +240,7 @@ copyLink.onclick = async () => {
 
 startBtn.onclick = () => {
 	challengeInProgress = true;
+	const runMode = challengeMode;
 	createOwnLink.hidden = true;
 	linkTitle.hidden = true;
 	audio.currentTime = 0;
@@ -293,37 +309,70 @@ startBtn.onclick = () => {
 												keyElement.style.translate = '0px 0px';
 												container.appendChild(keyElement);
 											}
-											container.className = 'rotary-container';
+											container.className = `rotary-container${runMode === 'key-select' ? ' key-select-mode' : ''}`;
 											challengeHint.hidden = challengeHint.dataset.enabled !== 'true';
 											container.animate([{rotate: '0deg'}, {rotate: '360deg'}],
 															 {duration: 15000, iterations: Infinity});
+											if (runMode === 'key-select') {
+												for (const key of Array.from(keys)) {
+													key.setAttribute('role', 'button');
+													key.setAttribute('tabindex', '0');
+													key.setAttribute('aria-label', 'Select this key');
+													key.onkeydown = (event) => {
+														if (event.key === 'Enter' || event.key === ' ') {
+															event.preventDefault();
+															key.click();
+														}
+													};
+												}
+											}
 											for(let k = 0; k < 8; k++) {
 												keys[k].animate([{rotate: '0deg'}, {rotate: '-360deg'}],
 														       {duration: 15000, iterations: Infinity});
 											}
 											let k = -1;
-											let blinkInterval = window.setInterval(() => {
-												k = (k + 1) % 8;
-												keys[k].animate([{textShadow: '0px 0px 8vh var(--col), 0px 0px 8vh #fffd', color: '#fff'}, {textShadow: '0px 0px 8vh var(--col)', color: 'var(--col)'}],
-															   {duration: 500});
-											}, 500);
-											document.body.onclick = () => {
+											let blinkInterval = null;
+											if (runMode === 'classic') {
+												blinkInterval = window.setInterval(() => {
+													k = (k + 1) % 8;
+													keys[k].animate([{textShadow: '0px 0px 8vh var(--col), 0px 0px 8vh #fffd', color: '#fff'}, {textShadow: '0px 0px 8vh var(--col)', color: 'var(--col)'}],
+																   {duration: 500});
+												}, 500);
+											}
+											document.body.onclick = (event) => {
+												const clickedKey = event.target instanceof Element
+													? event.target.closest('.key')
+													: null;
+												if (runMode === 'key-select' && !clickedKey) {
+													return;
+												}
+												const selectedPosition = runMode === 'key-select'
+													? Array.from(keys).indexOf(clickedKey)
+													: k;
 												document.body.onclick = () => null;
 												challengeHint.hidden = true;
-												window.clearInterval(blinkInterval);
+												if (blinkInterval !== null) {
+													window.clearInterval(blinkInterval);
+												}
+												for (const key of keyElements) {
+													key.removeAttribute('role');
+													key.removeAttribute('tabindex');
+													key.removeAttribute('aria-label');
+													key.onkeydown = null;
+												}
 												let containerAnims = container.getAnimations();
 												for(let l = 0; l < containerAnims.length; l++) {
                                                     containerAnims[l].cancel();
                                                 }
 												container.classList.add('hidden');
-												document.body.animate([{backgroundColor: keys[k].style.getPropertyValue('--col')}, {backgroundColor: '#000'}],
+												document.body.animate([{backgroundColor: keys[selectedPosition].style.getPropertyValue('--col')}, {backgroundColor: '#000'}],
 																	 {duration: 1000});
 												window.setTimeout(() => {
-													let text = (k === correctPosition) ? correct : wrong;
+													let text = (selectedPosition === correctPosition) ? correct : wrong;
 													text.style.color = keys[correctPosition].style.getPropertyValue('--col');
 													text.animate([{opacity: 1}, {opacity: 0}],
 																{duration: 2000});
-													if (k === correctPosition) {
+													if (selectedPosition === correctPosition) {
 														window.setTimeout(async () => {
 															await linkResolution;
 															window.location.href = resolvedRedirectUrl || getRedirectUrl();
@@ -337,6 +386,7 @@ startBtn.onclick = () => {
 														}, 2000);
 													}
 													container.classList.remove('rotary-container');
+													container.classList.remove('key-select-mode');
 													container.classList.add('container');
 													for(let l = 0; l < 8; l++) {
 														keys[l].getAnimations()[0].cancel();

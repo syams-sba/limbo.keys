@@ -11,7 +11,7 @@ if (!is_string($id) || !preg_match('/^[a-z0-9-]{1,36}$/i', $id)) {
 }
 
 $statement = $pdo->prepare(
-    'SELECT destination, button_text, page_title, show_hint FROM short_links
+    'SELECT destination, button_text, page_title, show_hint, key_mode FROM short_links
      WHERE id = :id AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)'
 );
 $statement->execute([':id' => strtolower($id)]);
@@ -27,4 +27,5 @@ echo json_encode([
     'buttonText' => $link['button_text'],
     'pageTitle' => $link['page_title'],
     'showHint' => (bool) $link['show_hint'],
+    'keyMode' => $link['key_mode'],
 ]);

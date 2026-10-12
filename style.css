@@ -124,20 +124,50 @@ body.generator-page #create-own-link {
 	color: #f88;
 	font: 1rem Arial, sans-serif;
 }
-.checkbox-option {
+.challenge-settings {
 	flex: 1 1 100%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	gap: 2rem;
+	flex-wrap: wrap;
+}
+.key-mode-option {
+	display: flex;
+	align-items: center;
 	gap: .75rem;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: #fff;
+	font: 1rem Arial, sans-serif;
+}
+.key-mode-option legend {
+	float: left;
+	margin-right: .75rem;
+}
+.key-mode-option label {
+	display: inline-flex;
+	align-items: center;
+	gap: .35rem;
+	cursor: pointer;
+}
+.key-mode-option input,
+.checkbox-option input {
+	accent-color: #f00;
+}
+.checkbox-option {
 	color: #fff;
 	font: 1rem Arial, sans-serif;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: .75rem;
 }
-.checkbox-option input {
+.checkbox-option input,
+.key-mode-option input {
 	width: 1.15rem;
 	height: 1.15rem;
-	accent-color: #f00;
 }
 
 #start-button {
@@ -285,6 +315,13 @@ body.generator-page #create-own-link {
 	--x: 1;
 	--y: 0;
 }
+.rotary-container.key-select-mode > .key {
+	cursor: pointer;
+}
+.rotary-container.key-select-mode > .key:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 4px;
+}
 
 #wrong, #correct {
 	position: absolute;
@@ -324,6 +361,26 @@ body.generator-page #create-own-link {
 		justify-content: flex-start;
 		text-align: left;
 		line-height: 1.4;
+	}
+	.challenge-settings {
+		justify-content: flex-start;
+		gap: .5rem;
+	}
+	.key-mode-option {
+		gap: .25rem;
+		font-size: .85rem;
+	}
+	.key-mode-option legend {
+		margin-right: .25rem;
+	}
+	.checkbox-option {
+		gap: .4rem;
+		font-size: .85rem;
+	}
+	.checkbox-option input,
+	.key-mode-option input {
+		width: 1rem;
+		height: 1rem;
 	}
 	#link-title {
 		bottom: calc(50% + 5.5rem);
