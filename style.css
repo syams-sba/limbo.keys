@@ -171,19 +171,30 @@ body.generator-page #challenge-report-link {
 	height: 1.15rem;
 }
 
-#start-button {
+#challenge-actions {
 	position: absolute;
 	left: 50%;
-	top: calc(50% + clamp(2.5rem, 6vh, 4rem));
-	transform: translateX(-50%);
+	top: 50%;
+	translate: -50% -50%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(.75rem, 2vh, 1.25rem);
+	width: min(92vw, 800px);
+	text-align: center;
+}
+#start-button {
+	position: relative;
 	padding: 1.6vh 2.2vh;
 	border-radius: 1.5rem;
-	max-width: min(90vw, 760px);
+	max-width: 100%;
 	box-sizing: border-box;
 	background-color: #f00;
 	font-size: clamp(1.5rem, 10vh, 4rem);
 	font-family: Roboto, Arial, sans-serif;
 	text-align: center;
+	overflow-wrap: anywhere;
+	line-height: 1.1;
 	cursor: pointer;
 	transition: scale .2s ease, background-color .2s ease, translate .3s ease-in-out;
 	user-select: none;
@@ -196,8 +207,6 @@ body.generator-page #challenge-report-link {
 	scale: .98;
 }
 #create-own-link {
-	position: absolute;
-	top: calc(50% + clamp(4rem, 10vh, 5.5rem));
 	color: #f00;
 	font: .9rem Arial, sans-serif;
 	text-align: center;
@@ -207,10 +216,6 @@ body.generator-page #challenge-report-link {
 	color: #ff0;
 }
 #challenge-report-link {
-	position: absolute;
-	left: 50%;
-	top: calc(50% + clamp(7.5rem, 15vh, 9.5rem));
-	transform: translateX(-50%);
 	color: #f00;
 	font: .9rem Arial, sans-serif;
 	text-align: center;
@@ -224,18 +229,18 @@ body.generator-page #challenge-report-link {
 	translate: 0px 60vh;
 	pointer-events: none;
 }
+#start-button.hidden:hover,
+#start-button.hidden:active {
+	scale: 1;
+}
 #link-title {
-	position: absolute;
-	left: 50%;
-	top: calc(50% - clamp(7rem, 14vh, 10rem));
-	transform: translateX(-50%);
-	width: min(90vw, 700px);
-	padding: 0 1rem;
+	width: 100%;
 	box-sizing: border-box;
 	color: #fff;
 	font: 900 clamp(1.2rem, 5vh, 2.5rem) Roboto, Arial, sans-serif;
 	text-align: center;
 	text-shadow: 0 0 2vh #fff;
+	overflow-wrap: anywhere;
 }
 #challenge-hint {
 	position: absolute;
@@ -403,12 +408,9 @@ body.generator-page #challenge-report-link {
 		height: 1rem;
 	}
 	#link-title {
-		bottom: calc(50% + 5.5rem);
-		width: 92vw;
 		font-size: clamp(1.15rem, 6vw, 2rem);
 	}
 	#start-button {
-		max-width: 84vw;
 		padding: 1rem 1.25rem;
 		font-size: clamp(1.35rem, 8vw, 2.5rem);
 		border-radius: 2rem;
