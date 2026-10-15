@@ -20,7 +20,6 @@ const linkTitle = document.getElementById('link-title');
 const challengeHint = document.getElementById('challenge-hint');
 const createOwnLink = document.getElementById('create-own-link');
 const challengeReportLink = document.getElementById('challenge-report-link');
-const challengeWarning = document.getElementById('challenge-warning');
 let challengeInProgress = false;
 let challengeMode = 'classic';
 
