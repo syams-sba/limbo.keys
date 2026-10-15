@@ -217,7 +217,7 @@ body.generator-page #challenge-warning {
 }
 #challenge-warning {
 	position: absolute;
-	top: calc(50% + clamp(7.5rem, 17vh, 9.5rem));
+	top: calc(50% - clamp(4.5rem, 9vh, 6rem));
 	margin: 0;
 	color: #aaa;
 	font: .8rem Arial, sans-serif;
