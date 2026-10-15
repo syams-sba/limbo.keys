@@ -30,10 +30,10 @@
         </p>
       </details>
       <form id="generator-form">
-        <input id="destination-input" type="url" placeholder="https://example.com" autocomplete="off" aria-label="Destination URL" required />
-        <input id="custom-id-input" type="text" placeholder="Custom link name (optional)" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-label="Custom link name (optional)" />
-        <input id="page-title-input" type="text" placeholder="Title above the button (optional)" maxlength="80" aria-label="Title above the button (optional)" />
-        <input id="button-text-input" type="text" placeholder="Button text (optional, default: GO TO SITE)" maxlength="40" aria-label="Button text (optional, default: GO TO SITE)" />
+        <input id="destination-input" type="url" placeholder="https://example.com (HTTPS only, max 2048 chars)" maxlength="2048" autocomplete="off" aria-label="Destination URL (HTTPS only, max 2048 characters)" required />
+        <input id="custom-id-input" type="text" placeholder="Custom name (optional: letters, numbers, hyphens, max 36)" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-label="Custom link name (optional, letters, numbers and hyphens, max 36 characters)" />
+        <input id="page-title-input" type="text" placeholder="Title above the button (optional, max 80 chars)" maxlength="80" aria-label="Title above the button (optional, max 80 characters)" />
+        <input id="button-text-input" type="text" placeholder="Button text (optional, max 40, default: GO TO SITE)" maxlength="40" aria-label="Button text (optional, max 40 characters, default: GO TO SITE)" />
         <div class="challenge-settings">
           <fieldset class="key-mode-option">
             <legend>Key mode</legend>
