@@ -213,7 +213,6 @@ startBtn.onclick = () => {
 	const runMode = challengeMode;
 	createOwnLink.hidden = true;
 	challengeReportLink.hidden = true;
-	challengeWarning.hidden = true;
 	linkTitle.hidden = true;
 	audio.currentTime = 0;
 	audio.play();
@@ -360,7 +359,6 @@ startBtn.onclick = () => {
 															linkTitle.hidden = !linkTitle.textContent;
 															createOwnLink.hidden = false;
 															challengeReportLink.hidden = false;
-															challengeWarning.hidden = false;
 															startBtn.classList.remove('hidden');
 														}, 2000);
 													}
