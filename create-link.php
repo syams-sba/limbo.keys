@@ -56,7 +56,7 @@ if (!is_string($keyMode) || !in_array($keyMode, ['classic', 'key-select'], true)
     exit(json_encode(['error' => 'Invalid key mode.']));
 }
 
-if (!is_string($destination) || !filter_var($destination, FILTER_VALIDATE_URL)) {
+if (!is_string($destination) || strlen($destination) > 2048 || !filter_var($destination, FILTER_VALIDATE_URL)) {
     http_response_code(400);
     exit(json_encode(['error' => 'Invalid destination URL.']));
 }
@@ -65,6 +65,17 @@ $url = parse_url($destination);
 if (strtolower($url['scheme'] ?? '') !== 'https') {
     http_response_code(400);
     exit(json_encode(['error' => 'Only HTTPS destinations are allowed.']));
+}
+
+if (isset($url['user']) || isset($url['pass'])) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'Destination URLs cannot contain a username or password.']));
+}
+
+$host = strtolower($url['host'] ?? '');
+if ($host === '' || preg_match('/(^|\.)limbo\.gt\.tc$/', $host)) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'That destination is not allowed.']));
 }
 
 try {

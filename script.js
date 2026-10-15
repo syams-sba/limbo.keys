@@ -20,6 +20,7 @@ const linkTitle = document.getElementById('link-title');
 const challengeHint = document.getElementById('challenge-hint');
 const createOwnLink = document.getElementById('create-own-link');
 const challengeReportLink = document.getElementById('challenge-report-link');
+const challengeWarning = document.getElementById('challenge-warning');
 let challengeInProgress = false;
 let challengeMode = 'classic';
 
@@ -33,17 +34,7 @@ function setChallengeMode(mode) {
 setChallengeMode(challengeMode);
 
 function isTargetPage() {
-	const hashParameters = new URLSearchParams(window.location.hash.slice(1));
-	const pathname = window.location.pathname;
-	return Boolean(
-		new URLSearchParams(window.location.search).get('target') ||
-		new URLSearchParams(window.location.search).get('link') ||
-		hashParameters.get('target') ||
-		hashParameters.get('link') ||
-		/^\/https?:\/\//i.test(pathname) ||
-		pathname.includes('/limbo.keys/http') ||
-		(/^\/[a-z0-9-]{1,36}\/?$/i.test(pathname) && pathname !== '/')
-	);
+	return getLinkToken() !== null;
 }
 
 document.title = isTargetPage()
@@ -63,27 +54,6 @@ function getLinkToken() {
 	}
 	const pathToken = window.location.pathname.match(/^\/([a-z0-9-]{1,36})\/?$/i);
 	return pathToken ? pathToken[1] : null;
-}
-
-function getRedirectUrl() {
-	const marker = '/limbo.keys/';
-	const markerIndex = window.location.pathname.indexOf(marker);
-	const queryTarget = new URLSearchParams(window.location.search).get('target');
-	const hashTarget = new URLSearchParams(window.location.hash.slice(1)).get('target');
-	const targetParameter = hashTarget || queryTarget;
-
-	if (targetParameter && /^https?:\/\//i.test(targetParameter)) {
-		return targetParameter;
-	}
-
-	const targetPath = markerIndex === -1
-		? window.location.pathname.replace(/^\/+/, '')
-		: decodeURIComponent(window.location.pathname.slice(markerIndex + marker.length));
-	if (!/^https?:\/\//i.test(targetPath)) {
-		return 'https://www.google.com';
-	}
-
-	return `${targetPath}${window.location.search}${window.location.hash}`;
 }
 
 let resolvedRedirectUrl = null;
@@ -244,6 +214,7 @@ startBtn.onclick = () => {
 	const runMode = challengeMode;
 	createOwnLink.hidden = true;
 	challengeReportLink.hidden = true;
+	challengeWarning.hidden = true;
 	linkTitle.hidden = true;
 	audio.currentTime = 0;
 	audio.play();
@@ -293,7 +264,7 @@ startBtn.onclick = () => {
 						i++;
 						if(i === 30) {
 							window.clearInterval(moveInterval);
-							colors = ['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#80f', '#f08', '#f70'].sort(() => Math.random() - .5);
+							const colors = ['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#80f', '#f08', '#f70'].sort(() => Math.random() - .5);
 							let j = 0;
 							let colorInterval = window.setInterval(() => {
 								keys[j].animate([{rotate: '0deg'}, {rotate: '360deg'}],
@@ -348,6 +319,9 @@ startBtn.onclick = () => {
 												if (runMode === 'key-select' && !clickedKey) {
 													return;
 												}
+												if (runMode === 'classic' && k < 0) {
+													return;
+												}
 												const selectedPosition = runMode === 'key-select'
 													? Array.from(keys).indexOf(clickedKey)
 													: k;
@@ -377,7 +351,9 @@ startBtn.onclick = () => {
 													if (selectedPosition === correctPosition) {
 														window.setTimeout(async () => {
 															await linkResolution;
-															window.location.href = resolvedRedirectUrl || getRedirectUrl();
+															if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+																window.location.href = resolvedRedirectUrl;
+															}
 														}, 1500);
 													} else {
 														window.setTimeout(() => {
@@ -385,6 +361,7 @@ startBtn.onclick = () => {
 															linkTitle.hidden = !linkTitle.textContent;
 															createOwnLink.hidden = false;
 															challengeReportLink.hidden = false;
+															challengeWarning.hidden = false;
 															startBtn.classList.remove('hidden');
 														}, 2000);
 													}

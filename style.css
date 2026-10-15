@@ -33,7 +33,8 @@ body.generator-page #correct,
 body.generator-page #link-title,
 body.generator-page #challenge-hint,
 body.generator-page #create-own-link,
-body.generator-page #challenge-report-link {
+body.generator-page #challenge-report-link,
+body.generator-page #challenge-warning {
 	display: none;
 }
 #create-own-link[hidden] {
@@ -213,6 +214,17 @@ body.generator-page #challenge-report-link {
 }
 #challenge-report-link:hover {
 	color: #ff0;
+}
+#challenge-warning {
+	position: absolute;
+	top: calc(50% + clamp(7.5rem, 17vh, 9.5rem));
+	margin: 0;
+	color: #aaa;
+	font: .8rem Arial, sans-serif;
+	text-align: center;
+}
+#challenge-warning[hidden] {
+	display: none;
 }
 #start-button.hidden {
 	translate: 0px 60vh;

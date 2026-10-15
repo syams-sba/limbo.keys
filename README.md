@@ -10,9 +10,9 @@ It isn't.
 
 ## 🎮 What is this?
 
-`limbo.keys` is basically a **redirect minigame**.
+`limbo.keys` is a **redirect minigame**, which is a sentence nobody asked for and yet here we are.
 
-You give it a destination URL, and the player has to survive a sequence of moving, rotating, glowing keys before choosing the correct one.
+You give it a destination URL. Whoever opens your link has to survive a sequence of moving, rotating, glowing keys before choosing the correct one.
 
 If they pick correctly...
 
@@ -22,25 +22,9 @@ If they don't...
 
 > WRONG.
 
-### How it works
+(Then they get to try again. We're evil, not cruel.)
 
-The generator creates an eight-character short name (or uses a custom name)
-and sends it with the HTTPS destination to `create-link.php`. Optional button
-text, title, key mode, and an optional mode-specific hint are stored alongside
-it in MySQL. Classic mode keeps the original timing challenge, while Key select
-mode requires clicking the correct key. A link looks like:
-
-```text
-https://limbo.gt.tc/ia9ur38r
-```
-
-When the link is opened, `script.js` calls `resolve-link.php` to retrieve the
-destination and optional display settings. The destination is not placed in
-the browser URL. After the challenge is completed, the browser redirects to
-the stored destination. Existing query links such as `/?link=UUID` continue
-to work.
-
-So you can think of it as:
+**Try it:** [https://limbo.gt.tc](https://limbo.gt.tc)
 
 ```text
 [ destination URL ]
@@ -54,14 +38,47 @@ So you can think of it as:
         destination
 ```
 
-## 🕹️ The challenge
+---
+
+## ⚠️ Read this first (yes, actually)
+
+The jokes stop for about four bullet points. Please read them.
+
+* **Photosensitivity warning.** The challenge uses flashing, blinking, rotating, color-changing visuals plus audio. It may not be suitable for people with photosensitive epilepsy or motion sensitivity. This is the one part that is not a bit.
+* **Only open links from people you trust.** Anyone can make a link to any HTTPS site, and a Limbo link tells you nothing about where it goes until you win. Winning a minigame is not a security audit.
+* **Reporting abuse.** If a link leads somewhere malicious, send it to **[limbo.gt.tc@syamsbhima.com](mailto:limbo.gt.tc@syamsbhima.com)**. Reported links get deleted.
+* **Do not use this for sensitive stuff.** No passwords, private documents, authentication links, or payment links. If losing the link would ruin your week, don't put it behind a key game.
+
+Okay. Jokes resume.
+
+---
+
+## 🕹️ Make your own terrible link
+
+1. Go to [limbo.gt.tc](https://limbo.gt.tc).
+2. Paste an **HTTPS** destination (up to 2048 characters). HTTP and other protocols get rejected by both the form and the server, so don't bother trying. Query strings and fragments are fine, so Google Docs, YouTube, and GitHub links all work. Links with a username or password in them, or links pointing back at limbo.gt.tc, get rejected too. Nice try.
+3. Pick your poison:
+   * **Classic:** click anywhere when the correct key flashes.
+   * **Key select:** click the correct key. Yes, that's the whole mode.
+4. Optional extras:
+   * **Hint:** shows "Click anywhere when the correct key flashes" (Classic) or "Click the correct key" (Key select). For the merciful.
+   * **Custom name:** letters, numbers, and hyphens, up to 36 characters. Lowercased automatically, and must be unique. Leave it blank and you get a random eight-character name.
+   * **Title** (up to 80 characters) and **button text** (up to 40, default `GO TO SITE`) customize the challenge screen. Plain text only. Emojis and special characters are not supported, and no, the key emoji doesn't count as an exception.
+5. Copy your link:
+
+```text
+https://limbo.gt.tc/my-custom-link
+```
+
+Send it to a friend. Watch the friendship carefully.
+
+## 🏆 The challenge
 
 1. Click **GO TO SITE**
 2. Watch the keys.
 3. Try to keep track of the correct one.
 4. Wait for the final selection.
-5. In Classic mode, click anywhere when the correct key flashes. In Key select
-   mode, click the correct key.
+5. In Classic mode, click anywhere when the correct key flashes. In Key select mode, click the correct key.
 6. Hope you remembered correctly.
 
 The game gets increasingly chaotic with:
@@ -73,24 +90,117 @@ The game gets increasingly chaotic with:
 * 🌈 a final color sequence
 * 👁️ a blinking selection phase
 
-The movement patterns and correct-key tracking are handled in JavaScript.
+Right key: you're redirected. Wrong key: the challenge restarts, and you may reflect on your choices.
 
-## 🔗 Hosting on InfinityFree
+---
 
-This project is hosted on InfinityFree and uses PHP, MySQL, and Apache
-`.htaccess` rules. Short links such as `/my-custom-link` are routed by
-`.htaccess` to `index.html?link=my-custom-link`; the browser keeps the short
-path visible. If short paths are unavailable on a particular host
-configuration, use the query-link format `/?link=my-custom-link`.
+## 🙃 Limitations (a.k.a. the fine print we're pretending is fun)
 
-The short-link table must include the `key_mode` column for the updated
-endpoints. Apply the new column from `database-migration.sql`; if the earlier
-columns in that migration are already present, run only
-`ALTER TABLE short_links ADD COLUMN key_mode VARCHAR(16) NOT NULL DEFAULT 'classic';`.
+* A link name is an identifier, not encryption or access control. Anyone with the link can use it. Treat it like a bearer link, not a secret.
+* The destination lives in the site's MySQL database.
+* Links don't expire on their own (`expires_at` is optional and the generator leaves it `NULL`). They're immortal, like bad ideas.
+* If the website, PHP endpoints, database, or hosting account goes down, so do your links.
+* Some sites may block redirects or refuse to load after you win. Victory is not guaranteed to be rewarding.
+* The challenge needs JavaScript. Audio may stay muted until the page gets a click.
+* Closing the page loses your run. There is no save file.
+* No destination previews, user accounts, link management, rate limiting, or deletion interface. This is a toy, not a platform.
+* The site owner is responsible for the destinations stored and shared through the service, which is a sentence that keeps me humble.
 
-The `.htaccess` rules rely on Apache `mod_rewrite`. If a short path returns an
-InfinityFree 404, check that `.htaccess` uploaded correctly and that rewrites
-are enabled for the domain. The query-link format can be used as a fallback.
+---
+
+## 🛠️ Hosting it yourself
+
+Runs on InfinityFree (PHP, MySQL, Apache). Other hosts with the same stack should work, and you are welcome to inflict this on your own domain.
+
+### 📁 Project structure
+
+```text
+limbo.keys/
+├── index.html              # The game interface
+├── 404.html                # Fallback for hosts that use a custom 404 page
+├── style.css               # Styling + animations
+├── script.js               # Game logic + redirect system
+├── db.php                  # Server-only MySQL connection configuration
+├── create-link.php         # Creates short-name-to-destination records
+├── resolve-link.php        # Resolves links after they are opened
+├── .htaccess               # Rewrites short paths to the app (upload with the leading dot)
+├── database-migration.sql  # Adds optional link settings and key mode
+├── favicon.png             # Site icon
+├── limbo.mp3               # Audio
+└── LICENSE                 # MIT
+```
+
+### 🗄️ Database
+
+The repo only ships a migration (`database-migration.sql`), not the original table. The columns below are the ones the PHP code reads and writes. The base columns (`id`, `destination`, `expires_at`) are required by `create-link.php` and `resolve-link.php`; their exact types are inferred, so compare with your live table before trusting me.
+
+```sql
+CREATE TABLE short_links (
+  id          VARCHAR(36)  NOT NULL PRIMARY KEY,  -- link name, stored lowercase; duplicate = error 1062 -> HTTP 409
+  destination TEXT         NOT NULL,              -- HTTPS URL, max 2048 chars enforced by create-link.php
+  expires_at  DATETIME     NULL,                  -- optional; the generator leaves it NULL
+  button_text VARCHAR(40)  NULL,
+  page_title  VARCHAR(80)  NULL,
+  show_hint   TINYINT(1)   NOT NULL DEFAULT 0,
+  key_mode    VARCHAR(16)  NOT NULL DEFAULT 'classic'  -- 'classic' or 'key-select'
+) CHARACTER SET utf8mb4;
+```
+
+Already have the base table (`id`, `destination`, `expires_at`)? Apply `database-migration.sql`. If you only need Key select mode:
+
+```sql
+ALTER TABLE short_links ADD COLUMN key_mode VARCHAR(16) NOT NULL DEFAULT 'classic';
+```
+
+### 🧹 Moderation
+
+There is no admin panel. The admin panel is phpMyAdmin and a steady hand. To remove a reported link:
+
+```sql
+DELETE FROM short_links WHERE id = 'the-link-name';
+```
+
+The link stops resolving immediately. This works for every link, because the challenge page only ever redirects to destinations stored in the database.
+
+### 🛣️ Routing
+
+`.htaccess` rewrites short paths like `/my-custom-link` to `index.html?link=my-custom-link`, and the browser keeps the pretty short path. This needs Apache `mod_rewrite`.
+
+If a short path gives you a 404, check that `.htaccess` uploaded correctly (dotfiles love to go missing) and that rewrites are enabled for your domain. The query format `/?link=my-custom-link` works as a fallback, and older `/?link=UUID` links still work.
+
+### 🔐 Credentials
+
+`db.php` must never contain real credentials in a public repository. Keep the server copy configured and any public copy redacted. If your password is in a public commit, it is no longer your password.
+
+---
+
+## 🧠 The interesting part
+
+The correct key is tracked even while the keys are moving.
+
+The browser generates an eight-character short name (or uses your custom one) and sends it with the HTTPS destination to `create-link.php`, which stores it with the optional title, button text, key mode, and hint. When a link is opened, `script.js` calls `resolve-link.php` to fetch the destination and display settings. The destination never appears in the browser URL. After you win, the browser redirects.
+
+As for the shell game: the game randomly chooses a starting key and follows it through every shuffle to its new slot. Movement animations are committed to the keys' positions so the visuals stay in sync with the answer. Before the final selection, the keys are reordered to preserve their shuffled positions, and the selected slot is checked against the tracked key's final position.
+
+Eventually, the player gets a final selection screen.
+
+Click the right one:
+
+```text
+CORRECT
+```
+
+and the browser redirects.
+
+Click the wrong one:
+
+```text
+WRONG
+```
+
+and you're sent back to try again.
+
+---
 
 ## ✨ Why I made this
 
@@ -114,129 +224,33 @@ Nothing fancy:
 * PHP and MySQL on InfinityFree
 * A tiny bit of insanity
 
-The interface uses eight SVG key icons, with a black background and glowing color effects.
-The JavaScript handles the game sequence, animations, randomization, audio, key selection, and final redirect.
-
-## 🚀 Try it
-
-Go to this site
-
-[https://limbo.gt.tc](https://limbo.gt.tc)
-
-Add whatever destination you want. (only HTTPS destinations!)
-
-Enter an HTTPS destination in the generator. Choose Classic or Key select, and
-optionally enable the hint for the selected mode. Leave the custom name blank
-for an automatically generated short link, or enter a name containing letters,
-numbers, and hyphens (up to 36 characters). Names are normalized to lowercase
-and must be unique. The optional title and button text customize the challenge.
-The hint reads “Click anywhere when the correct key flashes” in Classic mode
-and “Click the correct key” in Key select mode. The generator creates a
-database-backed path link like:
-
-```text
-https://limbo.gt.tc/my-custom-link
-```
-
-Google Docs, YouTube, GitHub, and other HTTPS URLs with query strings or
-fragments are supported. The generator rejects HTTP and other protocols.
-
-## ⚠️ Important limitations and warnings
-
-* A short or custom name is an identifier, not encryption or access control.
-* Anyone who obtains a generated link can use it. Treat links as bearer links.
-* The destination is stored in the site's MySQL database.
-* Links currently do not expire automatically because `expires_at` is optional
-  and generated records leave it `NULL`.
-* Links stop working if the website, PHP endpoints, database, or hosting
-  account is unavailable.
-* Only HTTPS destinations are accepted; some sites may block redirects or
-  refuse to load after a challenge.
-* The challenge requires JavaScript. Audio may be blocked until the user
-  interacts with the page.
-* A wrong key restarts the challenge. Closing the page loses the current run.
-* Do not use this for passwords, private documents, authentication links,
-  payment links, or other sensitive destinations.
-* The service does not currently provide destination previews, user accounts,
-  link management, rate limiting, or a deletion interface.
-* The site owner is responsible for the destinations stored and shared
-  through the service.
-
-If someone sends you a Limbo link, verify that you trust the sender before
-opening it.
+The interface uses eight SVG key icons on a black background with glowing color effects. The JavaScript handles the game sequence, animations, randomization, audio, key selection, and the final redirect.
 
 ---
 
-## 📜 Credits
+## 📜 License
+
+Released under the [MIT License](LICENSE). The original Limbo Keys code by finnchillah is also MIT-licensed, and its copyright notice is kept in the `LICENSE` file, as the license requires and as good manners suggest.
+
+## 🙏 Credits
 
 The original implementation was **not written from scratch by me**.
 
 This project is based on the work by **finnchillah**:
 
-👉 [Original CodePen — Limbo Keys](https://codepen.io/finnchillah/full/mdoGxXd)
+👉 [Original CodePen: Limbo Keys](https://codepen.io/finnchillah/full/mdoGxXd)
 
-I adapted the original project, added redirect functionality, then added
-database-backed PHP/MySQL links for the InfinityFree deployment.
-
-Huge credit to the original creator for the core idea and implementation.
+I adapted the original, added redirect functionality, then bolted on database-backed PHP/MySQL links for the InfinityFree deployment. Huge credit to the original creator for the core idea and implementation. I just made it ask for a destination.
 
 The project is also inspired by:
 
-**Geometry Dash — Limbo**
+**Geometry Dash: Limbo**
 by **Mindcap**
 
 ---
 
-## 📁 Project structure
-
-```text
-limbo.keys/
-├── index.html      # The game interface
-├── 404.html        # Fallback for hosts that use a custom 404 page
-├── style.css       # Styling + animations
-├── script.js       # Game logic + redirect system
-├── db.php          # Server-only MySQL connection configuration
-├── create-link.php # Creates short-name-to-destination records
-├── resolve-link.php # Resolves links after they are opened
-├── .htaccess       # Rewrites short paths to the app
-├── database-migration.sql # Adds optional link settings and key mode
-└── limbo.mp3       # Audio
-```
-
-`db.php` must never contain real credentials in a public repository. Keep the
-server copy on InfinityFree configured with the database credentials, and
-keep any public or shared copy redacted.
-
-## 🧠 The interesting part
-
-The correct key is tracked even while the keys are moving.
-
-The game randomly chooses a starting key and tracks that key as each shuffle
-moves it to a new slot. Movement animations are committed to the keys' positions
-so the visual arrangement stays in sync with the answer. Before the final
-selection, the keys are reordered to preserve their shuffled positions, and
-the game checks the selected slot against the tracked key's final position.
-
-Eventually, the player gets a final selection screen.
-
-Click the right one:
-
-```text
-CORRECT
-```
-
-and the browser redirects.
-
-Click the wrong one:
-
-```text
-WRONG
-```
-
-and you're sentback to try again.
-
 ## 🔑
- 
+
 That's pretty much it.
 
 It's a link.
