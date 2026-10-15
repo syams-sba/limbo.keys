@@ -19,6 +19,7 @@ const copyStatus = document.getElementById('copy-status');
 const linkTitle = document.getElementById('link-title');
 const challengeHint = document.getElementById('challenge-hint');
 const createOwnLink = document.getElementById('create-own-link');
+const challengeReportLink = document.getElementById('challenge-report-link');
 let challengeInProgress = false;
 let challengeMode = 'classic';
 
@@ -242,6 +243,7 @@ startBtn.onclick = () => {
 	challengeInProgress = true;
 	const runMode = challengeMode;
 	createOwnLink.hidden = true;
+	challengeReportLink.hidden = true;
 	linkTitle.hidden = true;
 	audio.currentTime = 0;
 	audio.play();
@@ -382,6 +384,7 @@ startBtn.onclick = () => {
 															challengeInProgress = false;
 															linkTitle.hidden = !linkTitle.textContent;
 															createOwnLink.hidden = false;
+															challengeReportLink.hidden = false;
 															startBtn.classList.remove('hidden');
 														}, 2000);
 													}

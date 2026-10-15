@@ -123,8 +123,7 @@ Go to this site
 
 [https://limbo.gt.tc](https://limbo.gt.tc)
 
-
-Replace `https://example.com` with whatever destination you want.
+Add whatever destination you want. (only HTTPS destinations!)
 
 Enter an HTTPS destination in the generator. Choose Classic or Key select, and
 optionally enable the hint for the selected mode. Leave the custom name blank
