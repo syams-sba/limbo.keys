@@ -77,7 +77,7 @@ function startBackdrop(mode, flashColor, result) {
 		document.body.classList.add('scene-active');
 		const resultColor = outcomeMessage.style.getPropertyValue('--result-color');
 		const resultQuery = new URLSearchParams({ result, color: resultColor }).toString();
-		outcomeScene.src = `${mode === 'landing' ? 'landing.html' : 'crash.html'}?${resultQuery}`;
+		outcomeScene.src = `${mode === 'landing' ? 'landing.html' : 'crash.html'}?v=3&${resultQuery}`;
 		outcomeScene.hidden = false;
 		return;
 	}
@@ -510,18 +510,32 @@ startBtn.onclick = () => {
 														const redirectDetail = document.createElement('span');
 														redirectDetail.className = 'redirect-detail';
 														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
-															redirectDetail.textContent = `Landing complete. Redirecting you to ${resolvedRedirectUrl}`;
+															redirectDetail.append('Landing complete. Redirecting you to ');
+															const destinationLink = document.createElement('a');
+															destinationLink.className = 'redirect-destination';
+															destinationLink.href = resolvedRedirectUrl;
+															destinationLink.textContent = resolvedRedirectUrl;
+															redirectDetail.append(destinationLink);
 														} else {
 															redirectDetail.textContent = 'Landing complete, but the destination is unavailable.';
 														}
-															outcomeMessage.replaceChildren(redirectDetail);
-															outcomeMessage.hidden = false;
+														outcomeMessage.replaceChildren(redirectDetail);
+														outcomeMessage.hidden = false;
 													}
 													if (landedCorrectly) {
 														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
 															window.setTimeout(() => {
-																window.location.href = resolvedRedirectUrl;
-															}, 1000);
+																const redirectLink = document.createElement('a');
+																redirectLink.href = resolvedRedirectUrl;
+																redirectLink.textContent = 'click here';
+																const fallback = document.createElement('span');
+																fallback.className = 'redirect-fallback';
+																fallback.append('Not redirected? ', redirectLink);
+																outcomeMessage.querySelector('.redirect-detail')?.append(fallback);
+																window.setTimeout(() => {
+																	window.location.href = resolvedRedirectUrl;
+																}, 2000);
+															}, 2000);
 														}
 													} else {
 														window.setTimeout(() => {

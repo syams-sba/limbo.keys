@@ -651,11 +651,11 @@ body.low-detail .key svg {
 	bottom: max(1rem, env(safe-area-inset-bottom));
 	width: min(90vw, 900px);
 	color: var(--result-color, #eee);
-	font: 900 clamp(2rem, 8vw, 6rem)/1.15 PUSAB, sans-serif;
+	font: 900 clamp(2rem, 8vw, 6rem)/1.15 sans-serif;
 	text-align: center;
 	overflow-wrap: anywhere;
 	cursor: default;
-	pointer-events: none;
+	pointer-events: auto;
 	transform: translateX(-50%);
 }
 #outcome-message[hidden] {
@@ -665,6 +665,21 @@ body.low-detail .key svg {
 	display: block;
 	margin-top: 1rem;
 	font: 600 clamp(.95rem, 2.6vw, 1.5rem)/1.45 PUSAB, sans-serif;
+}
+#outcome-message .redirect-fallback {
+	display: block;
+	margin-top: .5rem;
+	font-size: .85em;
+}
+#outcome-message .redirect-detail a {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: .15em;
+	pointer-events: auto;
+}
+#outcome-message .redirect-detail a:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 3px;
 }
 
 .guide-page {

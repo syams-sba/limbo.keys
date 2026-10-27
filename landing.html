@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Video 2 – gray landing</title>
-<style>@font-face{font-family:PUSAB;src:url("Pusab/PUSAB___.otf") format("opentype");font-weight:normal;font-style:normal;font-display:swap}
+<style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
 body{display:flex;align-items:center;justify-content:center}
 canvas{display:block;width:min(100vw,177.7778vh);height:min(100vh,56.25vw);aspect-ratio:854/480;background:#000;cursor:pointer}
@@ -98,7 +98,7 @@ function render(o,r){
    if(tl>1){const gr=g.createLinearGradient(cxx-22-tl,0,cxx-22,0);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.7,'rgba(255,255,255,.7)');gr.addColorStop(1,'rgba(255,255,255,1)');g.fillStyle=gr;g.fillRect(cxx-22-tl,ty-1.5,tl,3.5)}}
   if(crashed)orb(o);else cube(CX+(gray?4*ss(11.6,12.0,o):0),cy,angle(o));
  }
- if(resultText&&o>=11.56){const labelY=gray?273:294,visibleWidth=H*Math.min(W/H,cv.clientWidth/cv.clientHeight),labelX=(W-visibleWidth)*(cv.clientWidth/cv.clientHeight<1?.32:.5)+visibleWidth/2;g.save();g.font='64px PUSAB';const labelSize=Math.min(64,visibleWidth*.86/g.measureText(resultText).width*64,labelY-8);g.font=labelSize+'px PUSAB';g.textAlign='center';g.textBaseline='bottom';g.lineWidth=Math.max(2,labelSize*.06);g.strokeStyle='rgba(0,0,0,.85)';g.shadowColor=resultColor;g.shadowBlur=labelSize*.24;g.strokeText(resultText,labelX,labelY);g.fillStyle=resultColor;g.fillText(resultText,labelX,labelY);g.restore()}
+ if(resultText&&o>=11.56){const labelY=gray?273:294,visibleWidth=H*Math.min(W/H,cv.clientWidth/cv.clientHeight),labelX=(W-visibleWidth)*(cv.clientWidth/cv.clientHeight<1?.32:.5)+visibleWidth/2;g.save();g.font='64px sans-serif';const labelSize=Math.min(64,visibleWidth*.86/g.measureText(resultText).width*64,labelY-8);g.font=labelSize+'px sans-serif';g.textAlign='center';g.textBaseline='bottom';g.lineWidth=Math.max(2,labelSize*.06);g.strokeStyle='rgba(0,0,0,.85)';g.shadowColor=resultColor;g.shadowBlur=labelSize*.24;g.strokeText(resultText,labelX,labelY);g.fillStyle=resultColor;g.fillText(resultText,labelX,labelY);g.restore()}
  const ov=gray?ss(12.4,12.6,o):ss(12.06,12.12,o);if(ov>0){g.fillStyle=`rgba(0,0,0,${ov})`;g.fillRect(0,0,W,H)}
 }
 window.renderLocal=o=>render(o,o>=7.9?o-4.9:o);
