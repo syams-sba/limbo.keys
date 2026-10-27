@@ -77,7 +77,7 @@ function startBackdrop(mode, flashColor, result) {
 		document.body.classList.add('scene-active');
 		const resultColor = outcomeMessage.style.getPropertyValue('--result-color');
 		const resultQuery = new URLSearchParams({ result, color: resultColor }).toString();
-		outcomeScene.src = `${mode === 'landing' ? 'landing.html' : 'crash.html'}?v=3&${resultQuery}`;
+		outcomeScene.src = `${mode === 'landing' ? 'landing.html' : 'crash.html'}?v=4&${resultQuery}`;
 		outcomeScene.hidden = false;
 		return;
 	}
