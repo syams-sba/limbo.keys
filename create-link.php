@@ -28,7 +28,6 @@ if (!is_string($id) || !preg_match('/^[a-z0-9-]{1,36}$/i', $id)) {
     exit(json_encode(['error' => 'Link name must use only letters, numbers, and hyphens (up to 36 characters).']));
 }
 
-$id = strtolower($id);
 $linkOptions = [];
 foreach ($options as $column => [$field, $maxLength]) {
     $value = $body[$field] ?? '';
@@ -56,6 +55,12 @@ if (!is_string($keyMode) || !in_array($keyMode, ['classic', 'key-select'], true)
     exit(json_encode(['error' => 'Invalid key mode.']));
 }
 
+$detailMode = $body['detailMode'] ?? 'high-detail';
+if (!is_string($detailMode) || !in_array($detailMode, ['high-detail', 'low-detail'], true)) {
+    http_response_code(400);
+    exit(json_encode(['error' => 'Invalid detail mode.']));
+}
+
 if (!is_string($destination) || strlen($destination) > 2048 || !filter_var($destination, FILTER_VALIDATE_URL)) {
     http_response_code(400);
     exit(json_encode(['error' => 'Invalid destination URL.']));
@@ -81,9 +86,9 @@ if ($host === '' || preg_match('/(^|\.)limbo\.gt\.tc$/', $host)) {
 try {
     $statement = $pdo->prepare(
         'INSERT INTO short_links
-            (id, destination, button_text, page_title, show_hint, key_mode)
+            (id, destination, button_text, page_title, show_hint, key_mode, detail_mode)
          VALUES
-            (:id, :destination, :button_text, :page_title, :show_hint, :key_mode)'
+            (:id, :destination, :button_text, :page_title, :show_hint, :key_mode, :detail_mode)'
     );
     $statement->execute([
         ':id' => $id,
@@ -92,6 +97,7 @@ try {
         ':page_title' => $linkOptions['page_title'],
         ':show_hint' => $showHint ? 1 : 0,
         ':key_mode' => $keyMode,
+        ':detail_mode' => $detailMode,
     ]);
 
     echo json_encode(['id' => $id]);

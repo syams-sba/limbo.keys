@@ -4,52 +4,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>limbo.gt.tc</title>
-    <link rel="stylesheet" href="style.css?v=8" />
+    <link rel="stylesheet" href="style.css?v=31" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="script.js?v=8" defer></script>
+    <script src="script.js?v=24" defer></script>
   </head>
   <body class="generator-page">
     <audio id="limbo-audio" src="limbo.mp3" preload="auto"></audio>
     <main id="link-generator">
       <h1>limbo.gt.tc</h1>
-      <p>Enter a destination to create a short link. Customize the name and challenge, or leave the options blank for the classic look.</p>
-      <details class="generator-note">
-        <summary>DISCLAIMER</summary>
-        <p>
-          <b>Photosensitivity warning:</b> the challenge uses flashing,
-          blinking, and rotating visuals plus audio, and may not be suitable
-          for people with photosensitive epilepsy or motion sensitivity.
-          <b>Only HTTPS destinations are accepted.</b> Link names are identifiers,
-          not encryption, and anyone with a link can use it. The destination is
-          stored on the site database, so links work only while this website
-          and its database are available. Do not use this for passwords,
-          private documents, or other sensitive information. Some destination
-          sites may block redirects, and the challenge requires JavaScript and
-          a successful database lookup; audio may be blocked by browser
-          settings. <b>Does not support emojis or special characters in the link name, title, nor button text. The site is not responsible for any content on destination sites.</b>
-        </p>
-      </details>
+      <p>Enter a destination to create a short link. Customize its name and challenge, or leave optional fields blank.</p>
+      <nav class="generator-links" aria-label="Link information">
+        <details class="generator-note">
+          <summary>DISCLAIMER</summary>
+          <p>
+            <b>Photosensitivity warning:</b> the challenge uses flashing,
+            blinking, and rotating visuals plus audio, and may not be suitable
+            for people with photosensitive epilepsy or motion sensitivity.
+            <b>Only HTTPS destinations are accepted.</b> Link names are identifiers,
+            not encryption, and anyone with a link can use it. The destination is
+            stored on the site database, so links work only while this website
+            and its database are available. Do not use this for passwords,
+            private documents, or other sensitive information. Some destination
+            sites may block redirects, and the challenge requires JavaScript and
+            a successful database lookup; audio may be blocked by browser
+            settings. <b>Does not support emojis or special characters in the link name, title, nor button text. The site is not responsible for any content on destination sites.</b>
+          </p>
+        </details>
+        <a class="guide-link" href="how-to-create.html">How to create a link</a>
+      </nav>
       <form id="generator-form">
-        <input id="destination-input" type="url" placeholder="https://example.com (HTTPS only, max 2048 chars)" maxlength="2048" autocomplete="off" aria-label="Destination URL (HTTPS only, max 2048 characters)" required />
-        <input id="custom-id-input" type="text" placeholder="Custom name (optional: letters, numbers, hyphens, max 36)" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-label="Custom link name (optional, letters, numbers and hyphens, max 36 characters)" />
-        <input id="page-title-input" type="text" placeholder="Title above the button (optional, max 80 chars)" maxlength="80" aria-label="Title above the button (optional, max 80 characters)" />
-        <input id="button-text-input" type="text" placeholder="Button text (optional, max 40, default: GO TO SITE)" maxlength="40" aria-label="Button text (optional, max 40 characters, default: GO TO SITE)" />
+        <label class="form-field form-field-wide" for="destination-input">
+          <span>Destination URL <span class="required-mark">Required</span></span>
+          <input id="destination-input" type="url" placeholder="https://example.com" maxlength="2048" autocomplete="url" aria-describedby="destination-help" required />
+          <span class="field-help" id="destination-help">HTTPS only · up to 2048 characters</span>
+        </label>
+        <label class="form-field" for="custom-id-input">
+          <span>Custom link name <span class="optional-mark">Optional</span></span>
+          <input id="custom-id-input" type="text" placeholder="Leave blank for a random name" maxlength="36" pattern="[A-Za-z0-9\-]+" autocomplete="off" aria-describedby="custom-id-help" />
+          <span class="field-help" id="custom-id-help">Letters, numbers, hyphens · up to 36</span>
+        </label>
+        <label class="form-field" for="page-title-input">
+          <span>Page title <span class="optional-mark">Optional</span></span>
+          <input id="page-title-input" type="text" placeholder="Text above the button" maxlength="80" aria-describedby="page-title-help" />
+          <span class="field-help" id="page-title-help">Up to 80 characters</span>
+        </label>
+        <label class="form-field form-field-wide" for="button-text-input">
+          <span>Button text <span class="optional-mark">Optional</span></span>
+          <input id="button-text-input" type="text" placeholder="GO TO SITE" maxlength="40" aria-describedby="button-text-help" />
+          <span class="field-help" id="button-text-help">Up to 40 characters · defaults to GO TO SITE</span>
+        </label>
         <div class="challenge-settings">
-          <fieldset class="key-mode-option">
-            <legend>Key mode</legend>
-            <label><input type="radio" name="key-mode" value="classic" checked /> Classic</label>
-            <label><input type="radio" name="key-mode" value="key-select" /> Key select</label>
-          </fieldset>
+          <p class="settings-title">CHALLENGE SETTINGS</p>
+          <label class="setting-field" for="detail-mode-input">
+            <span>Detail mode</span>
+            <select id="detail-mode-input" name="detail-mode">
+              <option value="high-detail" selected>High Detail</option>
+              <option value="low-detail">Low Detail (for low end devices)</option>
+            </select>
+          </label>
+          <label class="setting-field" for="key-mode-input">
+            <span>Key mode</span>
+            <select id="key-mode-input" name="key-mode">
+              <option value="classic" selected>Click on flash</option>
+              <option value="key-select">Select the correct key</option>
+            </select>
+          </label>
           <label class="checkbox-option">
             <input id="show-hint-input" type="checkbox" />
             Show hint
           </label>
         </div>
-        <button type="submit">CREATE LINK</button>
+        <button class="create-link-button" type="submit">CREATE LINK</button>
         <span id="form-status" role="status" aria-live="polite"></span>
       </form>
       <div id="generated-link" hidden>
-        <input id="link-output" type="text" readonly />
+        <input id="link-output" type="text" aria-label="Generated short link" readonly />
         <button id="copy-link" type="button">COPY</button>
         <span id="copy-status" role="status"></span>
       </div>
@@ -60,10 +89,157 @@
         <a href="https://codepen.io/finnchillah/full/mdoGxXd" target="_blank" rel="noopener noreferrer">CodePen</a>.
         <br>
         More information:
-        <a href="https://github.com/syams-sba/limbo.keys" target="_blank" rel="noopener noreferrer">GitHub</a>.
+        <a href="https://github.com/syams-sba/limbo.keys"c:\Users\Adriean Prasetyo\Downloads\files\index.html target="_blank" rel="noopener noreferrer">GitHub</a>.
         <a href="mailto:limbo.gt.tc@syamsbhima.com">Report an issue</a>.
       </footer>
     </main>
+    <iframe id="outcome-scene" title="Challenge result animation" hidden></iframe>
+<svg id="challenge-scene" viewBox="0 0 1600 900" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+      <title id="scene-title">Static Limbo visual sequence</title>
+      <desc id="scene-description">A fixed black, red, and amber abstract composition of luminous facets, rails, and intersecting light trails.</desc>
+      <defs>
+        <radialGradient id="ground" cx="52%" cy="49%" r="76%">
+          <stop offset="0" stop-color="#521009"/>
+          <stop offset=".32" stop-color="#1b0606"/>
+          <stop offset=".72" stop-color="#070304"/>
+          <stop offset="1" stop-color="#010102"/>
+        </radialGradient>
+        <linearGradient id="ember" x1="0" y1="0" x2="0" y2="1">
+          <stop stop-color="#fff2a0"/>
+          <stop offset=".2" stop-color="#ffb41c"/>
+          <stop offset=".63" stop-color="#df2b0d"/>
+          <stop offset="1" stop-color="#390307"/>
+        </linearGradient>
+        <linearGradient id="ruby" x1="0" y1="0" x2="1" y2="1">
+          <stop stop-color="#ff5731"/>
+          <stop offset=".37" stop-color="#9b100c"/>
+          <stop offset="1" stop-color="#280306"/>
+        </linearGradient>
+        <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+          <stop stop-color="#160406" stop-opacity="0"/>
+          <stop offset=".18" stop-color="#a40c0b"/>
+          <stop offset=".48" stop-color="#ff6d15"/>
+          <stop offset=".78" stop-color="#a40c0b"/>
+          <stop offset="1" stop-color="#160406" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="cool" x1="0" y1="0" x2="1" y2="1">
+          <stop stop-color="#b6ffff" stop-opacity=".82"/>
+          <stop offset=".42" stop-color="#7772dc" stop-opacity=".33"/>
+          <stop offset="1" stop-color="#261255" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="22"/>
+        </filter>
+        <filter id="grain" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed="14" result="noise"/>
+          <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+          <feComponentTransfer in="mono"><feFuncA type="table" tableValues="0 .13"/></feComponentTransfer>
+        </filter>
+        <g id="facet">
+          <path d="M0 45 26 0 52 45 26 91Z" fill="url(#ruby)"/>
+          <path d="M26 0 39 45 26 91Z" fill="#ffbd29" fill-opacity=".35"/>
+          <path d="M0 45 26 38 52 45 26 53Z" fill="#ff6f20" fill-opacity=".35"/>
+          <path d="M5 45 26 8 47 45 26 82Z" fill="none" stroke="#f05018" stroke-opacity=".42" stroke-width="3"/>
+        </g>
+        <g id="lantern">
+          <path d="M0 31 18 0 36 31 18 62Z" fill="url(#ember)"/>
+          <path d="M18 6 29 31 18 55 7 31Z" fill="#ffe85a" fill-opacity=".58"/>
+          <path d="M0 31 18 0 36 31 18 62Z" fill="none" stroke="#ff8b13" stroke-opacity=".65" stroke-width="2"/>
+        </g>
+      </defs>
+
+      <rect width="1600" height="900" fill="url(#ground)"/>
+      <ellipse class="ambient" cx="804" cy="461" rx="574" ry="237" fill="#c01908" opacity=".17" filter="url(#soft)"/>
+      <ellipse class="ambient" cx="780" cy="786" rx="685" ry="86" fill="#e63b0d" opacity=".15" filter="url(#soft)"/>
+      <g opacity=".68" filter="url(#glow)">
+        <path d="M0 132H510" stroke="#b4140d" stroke-width="4"/>
+        <path d="M0 177H436" stroke="#cc1b0f" stroke-width="2"/>
+        <path d="M0 244H520" stroke="#7c0c0e" stroke-width="5"/>
+        <path d="M0 319H397" stroke="#ca1a0c" stroke-width="3"/>
+        <path d="M0 394H476" stroke="#9f100d" stroke-width="4"/>
+        <path d="M0 465H348" stroke="#e92911" stroke-width="2"/>
+        <path d="M0 532H432" stroke="#7a0b0c" stroke-width="5"/>
+      </g>
+      <g opacity=".35">
+        <path d="M0 145H479M0 262H469M0 405H524M0 548H360" stroke="#f4511c" stroke-width="1"/>
+        <path d="M1120 112H1600M1190 225H1600M1118 340H1600M1242 452H1600" stroke="#7b0c12" stroke-width="2"/>
+      </g>
+
+      <g class="web-a" opacity=".35" fill="none" stroke-linecap="round">
+        <path d="M229 742 538 174 837 742 1250 169 1474 788" stroke="#e53716" stroke-width="5"/>
+        <path d="M116 580 583 239 1070 774 1459 193" stroke="#ff681f" stroke-width="3"/>
+        <path d="M334 809 770 161 1202 752" stroke="#9d1113" stroke-width="8"/>
+        <path d="M431 115 720 824M741 83 432 781M1037 74 642 831M1304 88 925 807" stroke="#ce1c12" stroke-width="2"/>
+        <path d="M181 667 650 356 1447 570M181 388 913 785 1407 321" stroke="#5f1014" stroke-width="4"/>
+      </g>
+      <g class="web-b" opacity=".34" fill="none" stroke="url(#cool)">
+        <path d="M258 811 832 131 1573 538" stroke-width="4"/>
+        <path d="M125 593 1048 255 1466 786" stroke-width="3"/>
+        <path d="M410 221 994 804 1505 236" stroke-width="2"/>
+      </g>
+
+      <g class="bright-trails" filter="url(#glow)">
+        <path d="M178 748 456 433 620 785 889 319 1129 733 1427 475" fill="none" stroke="#f25815" stroke-opacity=".7" stroke-width="10"/>
+        <path d="M178 748 456 433 620 785 889 319 1129 733 1427 475" fill="none" stroke="#ffb421" stroke-opacity=".22" stroke-width="3"/>
+        <path d="M300 668 661 503 989 648 1268 387" fill="none" stroke="#cb1a12" stroke-width="5"/>
+      </g>
+
+      <g opacity=".86">
+        <path d="M163 53H1437" stroke="url(#rail)" stroke-width="7" filter="url(#glow)"/>
+        <path d="M120 846H1480" stroke="url(#rail)" stroke-width="7" filter="url(#glow)"/>
+        <path d="M177 81H1423M161 820H1439" stroke="#651012" stroke-width="2"/>
+      </g>
+
+      <g class="top-row">
+        <g transform="translate(161 33) scale(.9)">
+        <use href="#facet" x="0"/><use href="#facet" x="87"/><use href="#facet" x="174"/><use href="#facet" x="261"/>
+        <use href="#lantern" x="348"/><use href="#facet" x="435"/><use href="#lantern" x="522"/><use href="#facet" x="609"/>
+        <use href="#facet" x="696"/><use href="#lantern" x="783"/><use href="#facet" x="870"/><use href="#lantern" x="957"/>
+          <use href="#facet" x="1044"/><use href="#facet" x="1131"/><use href="#lantern" x="1218"/>
+        </g>
+      </g>
+      <g class="bottom-row">
+        <g transform="translate(145 777) scale(.98)">
+        <use href="#lantern" x="0"/><use href="#facet" x="82"/><use href="#lantern" x="164"/><use href="#facet" x="246"/>
+        <use href="#facet" x="328"/><use href="#lantern" x="410"/><use href="#facet" x="492"/><use href="#lantern" x="574"/>
+        <use href="#facet" x="656"/><use href="#lantern" x="738"/><use href="#facet" x="820"/><use href="#lantern" x="902"/>
+          <use href="#facet" x="984"/><use href="#lantern" x="1066"/><use href="#facet" x="1148"/><use href="#lantern" x="1230"/>
+        </g>
+      </g>
+
+      <g class="shards" opacity=".82" filter="url(#glow)">
+        <path d="M576 249 676 181 731 295 651 362Z" fill="url(#ruby)"/>
+        <path d="M772 160 852 237 808 344 709 270Z" fill="url(#ruby)"/>
+        <path d="M958 210 1079 174 1117 290 1001 326Z" fill="url(#ruby)"/>
+        <path d="M1047 418 1181 349 1240 473 1105 543Z" fill="url(#ruby)"/>
+        <path d="M879 570 977 488 1088 575 980 676Z" fill="url(#ember)"/>
+        <path d="M581 558 670 446 792 532 704 650Z" fill="url(#ruby)"/>
+        <path d="M369 497 469 414 550 510 448 586Z" fill="url(#ruby)"/>
+        <path d="M1210 612 1325 532 1383 649 1275 735Z" fill="url(#ruby)"/>
+      </g>
+      <g opacity=".36" fill="#ff4b18">
+        <path d="M463 205 507 158 546 239 503 278Z"/><path d="M1192 159 1257 110 1282 199 1219 246Z"/>
+        <path d="M272 599 344 554 358 632 289 674Z"/><path d="M1398 326 1468 291 1491 359 1420 396Z"/>
+      </g>
+
+      <g fill="#fff5cf" opacity=".64" filter="url(#glow)">
+        <circle class="spark" cx="271" cy="266" r="3"/><circle class="spark" cx="337" cy="703" r="4"/><circle class="spark" cx="522" cy="122" r="2"/>
+        <circle class="spark" cx="663" cy="718" r="3"/><circle class="spark" cx="735" cy="404" r="4"/><circle class="spark" cx="912" cy="102" r="3"/>
+        <circle class="spark" cx="1021" cy="749" r="4"/><circle class="spark" cx="1261" cy="220" r="3"/><circle class="spark" cx="1390" cy="700" r="3"/>
+        <circle class="spark" cx="1482" cy="385" r="2"/><circle class="spark" cx="148" cy="468" r="3"/><circle class="spark" cx="112" cy="728" r="2"/>
+      </g>
+      <rect class="night-fade" width="1600" height="900" fill="#06071d" pointer-events="none"/>
+      <rect class="phase-tint" width="1600" height="900" fill="#4a2fa8" style="mix-blend-mode: color" pointer-events="none"/>
+      <rect width="1600" height="900" filter="url(#grain)" opacity=".72"/>
+      <rect x="2" y="2" width="1596" height="896" fill="none" stroke="#fb3216" stroke-opacity=".17" stroke-width="4"/>
+      <rect class="intro-top" x="0" y="0" width="1600" height="450" fill="#000" pointer-events="none"/>
+      <rect class="intro-bottom" x="0" y="450" width="1600" height="450" fill="#000" pointer-events="none"/>
+    </svg>
+    <canvas id="challenge-backdrop" aria-hidden="true"></canvas>
     <div class="container hidden">
       <div class="key">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -187,8 +363,7 @@
       </div>
     </div>
     <p id="challenge-hint" hidden>click anywhere when the correct key flashes</p>
-    <div id="wrong">WRONG</div>
-    <div id="correct">CORRECT</div>
+    <div id="outcome-message" role="status" aria-live="polite" hidden></div>
     <div id="challenge-actions">
       <div id="link-title" hidden></div>
       <div id="start-button" class="hidden">GO TO SITE</div>

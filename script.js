@@ -2,14 +2,19 @@ const startBtn = document.getElementById('start-button');
 const audio = document.getElementById('limbo-audio');
 const container = document.getElementsByClassName('container')[0];
 const keys = document.getElementsByClassName('key');
-const wrong = document.getElementById('wrong');
-const correct = document.getElementById('correct');
+const outcomeScene = document.getElementById('outcome-scene');
+const challengeScene = document.getElementById('challenge-scene');
+const backdrop = document.getElementById('challenge-backdrop');
+const backdropContext = backdrop.getContext('2d');
+const outcomeMessage = document.getElementById('outcome-message');
 const linkGenerator = document.getElementById('link-generator');
 const generatorForm = document.getElementById('generator-form');
 const destinationInput = document.getElementById('destination-input');
 const customIdInput = document.getElementById('custom-id-input');
 const pageTitleInput = document.getElementById('page-title-input');
 const buttonTextInput = document.getElementById('button-text-input');
+const detailModeInput = document.getElementById('detail-mode-input');
+const keyModeInput = document.getElementById('key-mode-input');
 const showHintInput = document.getElementById('show-hint-input');
 const formStatus = document.getElementById('form-status');
 const generatedLink = document.getElementById('generated-link');
@@ -22,23 +27,138 @@ const createOwnLink = document.getElementById('create-own-link');
 const challengeReportLink = document.getElementById('challenge-report-link');
 let challengeInProgress = false;
 let challengeMode = 'classic';
+let backdropMode = 'idle';
+let backdropFrame = 0;
+let backdropStartedAt = 0;
+let backdropFlashColor = '#fff';
+let backdropWidth = 0;
+let backdropHeight = 0;
+let backdropPixelRatio = 1;
+
+function resizeBackdrop() {
+	backdropPixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+	backdropWidth = window.innerWidth;
+	backdropHeight = window.innerHeight;
+	backdrop.width = Math.round(backdropWidth * backdropPixelRatio);
+	backdrop.height = Math.round(backdropHeight * backdropPixelRatio);
+	backdropContext.setTransform(backdropPixelRatio, 0, 0, backdropPixelRatio, 0, 0);
+}
+
+function drawBackdropFrame(now) {
+	if (backdropMode === 'idle') {
+		return;
+	}
+	const elapsed = (now - backdropStartedAt) / 1000;
+	const ctx = backdropContext;
+	const w = backdropWidth;
+	const h = backdropHeight;
+	if (backdropMode === 'flash') {
+		ctx.clearRect(0, 0, w, h);
+		const holdDuration = 0.2;
+		const fadeDuration = 0.6;
+		const opacity = Math.max(0, 1 - Math.max(0, elapsed - holdDuration) / fadeDuration);
+		ctx.globalAlpha = opacity;
+		ctx.fillStyle = backdropFlashColor;
+		ctx.fillRect(0, 0, w, h);
+		ctx.globalAlpha = 1;
+		if (elapsed < 1) {
+			backdropFrame = window.requestAnimationFrame(drawBackdropFrame);
+		}
+		return;
+	}
+}
+
+function startBackdrop(mode, flashColor, result) {
+	window.cancelAnimationFrame(backdropFrame);
+	if (mode === 'landing' || mode === 'crash') {
+		backdropMode = 'idle';
+		document.body.classList.remove('flash-active');
+		document.body.classList.remove('challenge-active');
+		document.body.classList.add('scene-active');
+		const resultColor = outcomeMessage.style.getPropertyValue('--result-color');
+		const resultQuery = new URLSearchParams({ result, color: resultColor }).toString();
+		outcomeScene.src = `${mode === 'landing' ? 'landing.html' : 'crash.html'}?${resultQuery}`;
+		outcomeScene.hidden = false;
+		return;
+	}
+	outcomeScene.hidden = true;
+	outcomeScene.src = 'about:blank';
+	document.body.classList.remove('scene-active');
+	document.body.classList.toggle('flash-active', mode === 'flash');
+	backdropMode = mode;
+	if (flashColor) {
+		backdropFlashColor = flashColor;
+	}
+	backdropStartedAt = performance.now();
+	document.body.classList.add('challenge-active');
+	if (mode === 'shuffle') {
+		challengeScene.style.display = 'none';
+		void challengeScene.getBoundingClientRect();
+		challengeScene.style.display = '';
+		backdropContext.clearRect(0, 0, backdropWidth, backdropHeight);
+	} else if (mode === 'flash') {
+		backdropFrame = window.requestAnimationFrame(drawBackdropFrame);
+	}
+}
+
+function stopBackdrop() {
+	window.cancelAnimationFrame(backdropFrame);
+	backdropMode = 'idle';
+	outcomeScene.hidden = true;
+	outcomeScene.src = 'about:blank';
+	document.body.classList.remove('scene-active');
+	document.body.classList.remove('flash-active');
+	backdropContext.clearRect(0, 0, backdropWidth, backdropHeight);
+	document.body.classList.remove('challenge-active');
+}
+
+window.addEventListener('resize', resizeBackdrop);
+resizeBackdrop();
 
 function setChallengeMode(mode) {
 	challengeMode = mode === 'key-select' ? 'key-select' : 'classic';
 	challengeHint.textContent = challengeMode === 'key-select'
-		? 'Click the correct key'
-		: 'Click anywhere when the correct key flashes';
+		? 'Select the correct key'
+		: 'Click when the correct key flashes';
+}
+
+function setDetailMode(mode) {
+	document.body.classList.toggle('low-detail', mode === 'low-detail');
+}
+
+function setKeyColor(key, color) {
+	const hue = {
+		'#f00': 0,
+		'#ff0': 60,
+		'#0f0': 120,
+		'#0ff': 180,
+		'#00f': 240,
+		'#80f': 270,
+		'#f08': 320,
+		'#f70': 30,
+	}[color.toLowerCase()];
+	key.style.setProperty('--col', color);
+	key.style.setProperty('--hue', `${hue ?? 0}deg`);
 }
 
 setChallengeMode(challengeMode);
 
 function isTargetPage() {
-	return getLinkToken() !== null;
+	return getLinkToken() !== null || testMode;
 }
 
-document.title = isTargetPage()
-	? 'Complete the challenge first before you enter!'
-	: 'limbo keys';
+const testMode = (
+	window.location.protocol === 'file:' ||
+	window.location.hostname === 'localhost' ||
+	window.location.hostname === '127.0.0.1'
+) && new URLSearchParams(window.location.search).get('test') === '1' &&
+	getLinkToken() === null;
+
+document.title = testMode
+	? 'Limbo Keys - Test Challenge'
+	: isTargetPage()
+		? 'Complete the challenge first before you enter!'
+		: 'limbo keys';
 
 function getAppUrl() {
 	return `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`;
@@ -57,7 +177,18 @@ function getLinkToken() {
 
 let resolvedRedirectUrl = null;
 const linkToken = getLinkToken();
-const linkResolution = linkToken
+const linkResolution = testMode
+	? Promise.resolve().then(() => {
+		resolvedRedirectUrl = 'https://example.com/';
+		startBtn.textContent = 'START TEST';
+		linkTitle.textContent = 'LOCAL TEST CHALLENGE';
+		linkTitle.hidden = false;
+		challengeHint.dataset.enabled = 'false';
+		setChallengeMode('classic');
+		setDetailMode('high-detail');
+		startBtn.classList.remove('hidden');
+	})
+	: linkToken
 	? fetch(`resolve-link.php?id=${encodeURIComponent(linkToken)}`)
 		.then(async (response) => {
 			const result = await response.json();
@@ -74,6 +205,7 @@ const linkResolution = linkToken
 			}
 			challengeHint.dataset.enabled = result.showHint === true ? 'true' : 'false';
 			setChallengeMode(result.keyMode);
+			setDetailMode(result.detailMode);
 			startBtn.classList.remove('hidden');
 		})
 		.catch((error) => {
@@ -156,7 +288,7 @@ generatorForm.onsubmit = async (event) => {
 	generatedLink.hidden = true;
 
 	try {
-		const id = customIdInput.value.trim().toLowerCase() || createShortId();
+		const id = customIdInput.value.trim() || createShortId();
 		const response = await fetch('create-link.php', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -166,7 +298,8 @@ generatorForm.onsubmit = async (event) => {
 				pageTitle: pageTitleInput.value.trim(),
 				buttonText: buttonTextInput.value.trim(),
 				showHint: showHintInput.checked,
-				keyMode: document.querySelector('input[name="key-mode"]:checked').value,
+				keyMode: keyModeInput.value,
+				detailMode: detailModeInput.value,
 			}),
 		});
 		const result = await response.json();
@@ -187,12 +320,12 @@ generatorForm.onsubmit = async (event) => {
 destinationInput.oninput = () => destinationInput.setCustomValidity('');
 
 function createShortId() {
-	const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+	const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	let id = '';
 	while (id.length < 8) {
 		const bytes = crypto.getRandomValues(new Uint8Array(16));
 		for (const byte of bytes) {
-			if (byte < 252) {
+			if (byte < 248) {
 				id += alphabet[byte % alphabet.length];
 				if (id.length === 8) {
 					break;
@@ -211,6 +344,7 @@ copyLink.onclick = async () => {
 startBtn.onclick = () => {
 	challengeInProgress = true;
 	const runMode = challengeMode;
+	startBackdrop('shuffle');
 	createOwnLink.hidden = true;
 	challengeReportLink.hidden = true;
 	linkTitle.hidden = true;
@@ -218,7 +352,11 @@ startBtn.onclick = () => {
 	audio.play();
 	startBtn.classList.add('hidden');
 	window.setTimeout(() => {
-		container.classList.remove('hidden');
+		container.hidden = false;
+		container.getBoundingClientRect();
+		window.requestAnimationFrame(() => {
+			container.classList.remove('hidden');
+		});
 		window.setTimeout(() => {
 			const keyElements = Array.from(keys);
 			let keysAtPosition = Array.from(keys, (_, index) => index);
@@ -238,9 +376,11 @@ startBtn.onclick = () => {
 				keysAtPosition = nextKeysAtPosition;
 			};
 			let correctKey = Math.floor(Math.random() * 8);
-			keys[correctKey].style.setProperty('--col', '#0f0');
+			setKeyColor(keys[correctKey], '#0f0');
+			keys[correctKey].classList.add('correct-reveal');
 			window.setTimeout(() => {
-				keys[correctKey].style.setProperty('--col', '#f00');
+				keys[correctKey].classList.remove('correct-reveal');
+				setKeyColor(keys[correctKey], '#f00');
 				window.setTimeout(() => {
 					let i = 0
 					let moveInterval = window.setInterval(() => {
@@ -267,7 +407,7 @@ startBtn.onclick = () => {
 							let colorInterval = window.setInterval(() => {
 								keys[j].animate([{rotate: '0deg'}, {rotate: '360deg'}],
 											   {duration: 1000, easing: 'cubic-bezier(.2, .3, 0, 1)'});
-								keys[j].style.setProperty('--col', colors[j]);
+								setKeyColor(keys[j], colors[j]);
 								j++;
 								if(j === 8) {
 									window.clearInterval(colorInterval);
@@ -305,9 +445,11 @@ startBtn.onclick = () => {
 											let blinkInterval = null;
 											if (runMode === 'classic') {
 												blinkInterval = window.setInterval(() => {
+													if (k >= 0) {
+														keys[k].classList.remove('flash-highlight');
+													}
 													k = (k + 1) % 8;
-													keys[k].animate([{textShadow: '0px 0px 8vh var(--col), 0px 0px 8vh #fffd', color: '#fff'}, {textShadow: '0px 0px 8vh var(--col)', color: 'var(--col)'}],
-																   {duration: 500});
+													keys[k].classList.add('flash-highlight');
 												}, 500);
 											}
 											document.body.onclick = (event) => {
@@ -329,6 +471,8 @@ startBtn.onclick = () => {
 													window.clearInterval(blinkInterval);
 												}
 												for (const key of keyElements) {
+													key.classList.remove('flash-highlight');
+													key.classList.remove('correct-reveal');
 													key.removeAttribute('role');
 													key.removeAttribute('tabindex');
 													key.removeAttribute('aria-label');
@@ -339,37 +483,58 @@ startBtn.onclick = () => {
                                                     containerAnims[l].cancel();
                                                 }
 												container.classList.add('hidden');
-												document.body.animate([{backgroundColor: keys[selectedPosition].style.getPropertyValue('--col')}, {backgroundColor: '#000'}],
-																	 {duration: 1000});
+												const landedCorrectly = selectedPosition === correctPosition;
+												const correctColor = keys[correctPosition].style.getPropertyValue('--col').trim();
+												const result = landedCorrectly ? 'correct' : 'wrong';
+												container.hidden = true;
+												outcomeMessage.dataset.result = result;
+												outcomeMessage.style.setProperty('--result-color', landedCorrectly ? '#eee' : correctColor);
+												outcomeMessage.replaceChildren(document.createTextNode(landedCorrectly ? 'CORRECT!' : 'WRONG'));
+												outcomeMessage.hidden = true;
+												startBackdrop('flash', keys[selectedPosition].style.getPropertyValue('--col'));
 												window.setTimeout(() => {
-													let text = (selectedPosition === correctPosition) ? correct : wrong;
-													text.style.color = keys[correctPosition].style.getPropertyValue('--col');
-													text.animate([{opacity: 1}, {opacity: 0}],
-																{duration: 2000});
-													if (selectedPosition === correctPosition) {
-														window.setTimeout(async () => {
-															await linkResolution;
-															if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+													startBackdrop(landedCorrectly ? 'landing' : 'crash', null, landedCorrectly ? 'CORRECT!' : 'WRONG');
+												}, 1000);
+												container.classList.remove('rotary-container');
+												container.classList.remove('key-select-mode');
+												container.classList.add('container');
+												for (const key of keyElements) {
+													for (const animation of key.getAnimations()) {
+														animation.cancel();
+													}
+													setKeyColor(key, '#f00');
+												}
+												window.setTimeout(async () => {
+													if (landedCorrectly) {
+														await linkResolution;
+														const redirectDetail = document.createElement('span');
+														redirectDetail.className = 'redirect-detail';
+														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+															redirectDetail.textContent = `Landing complete. Redirecting you to ${resolvedRedirectUrl}`;
+														} else {
+															redirectDetail.textContent = 'Landing complete, but the destination is unavailable.';
+														}
+															outcomeMessage.replaceChildren(redirectDetail);
+															outcomeMessage.hidden = false;
+													}
+													if (landedCorrectly) {
+														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+															window.setTimeout(() => {
 																window.location.href = resolvedRedirectUrl;
-															}
-														}, 1500);
+															}, 1000);
+														}
 													} else {
 														window.setTimeout(() => {
+															outcomeMessage.hidden = true;
+															stopBackdrop();
 															challengeInProgress = false;
 															linkTitle.hidden = !linkTitle.textContent;
 															createOwnLink.hidden = false;
 															challengeReportLink.hidden = false;
 															startBtn.classList.remove('hidden');
-														}, 2000);
+														}, 1800);
 													}
-													container.classList.remove('rotary-container');
-													container.classList.remove('key-select-mode');
-													container.classList.add('container');
-													for(let l = 0; l < 8; l++) {
-														keys[l].getAnimations()[0].cancel();
-														keys[l].style.setProperty('--col', '#f00');
-													}
-												}, 3000)
+												}, 7900);
 											}
 										}, 1000);
 									}, 500);
@@ -378,7 +543,7 @@ startBtn.onclick = () => {
 						}
 					}, 270);
 				}, 500);
-			}, 500);
+			}, 750);
 		}, 1000);
 	}, 200);
 }

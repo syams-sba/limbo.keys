@@ -12,7 +12,7 @@ It isn't.
 
 `limbo.keys` is a **redirect minigame**, which is a sentence nobody asked for and yet here we are.
 
-You give it a destination URL. Whoever opens your link has to survive a sequence of moving, rotating, glowing keys before choosing the correct one.
+You give it a destination URL. Whoever opens your link has to survive a sequence of moving and rotating keys before choosing the correct one.
 
 If they pick correctly...
 
@@ -58,13 +58,16 @@ Okay. Jokes resume.
 1. Go to [limbo.gt.tc](https://limbo.gt.tc).
 2. Paste an **HTTPS** destination (up to 2048 characters). HTTP and other protocols get rejected by both the form and the server, so don't bother trying. Query strings and fragments are fine, so Google Docs, YouTube, and GitHub links all work. Links with a username or password in them, or links pointing back at limbo.gt.tc, get rejected too. Nice try.
 3. Pick your poison:
-   * **Classic:** click anywhere when the correct key flashes.
-   * **Key select:** click the correct key. Yes, that's the whole mode.
-4. Optional extras:
-   * **Hint:** shows "Click anywhere when the correct key flashes" (Classic) or "Click the correct key" (Key select). For the merciful.
-   * **Custom name:** letters, numbers, and hyphens, up to 36 characters. Lowercased automatically, and must be unique. Leave it blank and you get a random eight-character name.
+   * **Click on flash:** click anywhere when the correct key flashes.
+   * **Select the correct key:** click the key you tracked.
+4. Choose a detail mode:
+   * **High Detail:** illustrated animated background and image keys.
+   * **Low Detail:** plain black background and simple keys for lower-end devices.
+5. Optional extras:
+   * **Hint:** shows the instruction for the selected key mode.
+   * **Custom name:** letters, numbers, and hyphens, up to 36 characters. Uppercase and lowercase are preserved, and names that differ only by case are distinct. Leave it blank and you get a random eight-character name using uppercase and lowercase letters and numbers.
    * **Title** (up to 80 characters) and **button text** (up to 40, default `GO TO SITE`) customize the challenge screen. Plain text only. Emojis and special characters are not supported, and no, the key emoji doesn't count as an exception.
-5. Copy your link:
+6. Copy your link:
 
 ```text
 https://limbo.gt.tc/my-custom-link
@@ -78,7 +81,7 @@ Send it to a friend. Watch the friendship carefully.
 2. Watch the keys.
 3. Try to keep track of the correct one.
 4. Wait for the final selection.
-5. In Classic mode, click anywhere when the correct key flashes. In Key select mode, click the correct key.
+5. In **Click on flash** mode, click anywhere when the correct key flashes. In **Select the correct key** mode, click the key.
 6. Hope you remembered correctly.
 
 The game gets increasingly chaotic with:
@@ -90,7 +93,7 @@ The game gets increasingly chaotic with:
 * 🌈 a final color sequence
 * 👁️ a blinking selection phase
 
-Right key: you're redirected. Wrong key: the challenge restarts, and you may reflect on your choices.
+Right key: a gray landing animation plays and, after a successful landing, the page shows the destination for one second before redirecting. Wrong key: the red crash sequence plays once before the challenge restarts.
 
 ---
 
@@ -117,6 +120,7 @@ Runs on InfinityFree (PHP, MySQL, Apache). Other hosts with the same stack shoul
 ```text
 limbo.keys/
 ├── index.html              # The game interface
+├── how-to-create.html      # Link creation instructions and mode descriptions
 ├── 404.html                # Fallback for hosts that use a custom 404 page
 ├── style.css               # Styling + animations
 ├── script.js               # Game logic + redirect system
@@ -124,8 +128,9 @@ limbo.keys/
 ├── create-link.php         # Creates short-name-to-destination records
 ├── resolve-link.php        # Resolves links after they are opened
 ├── .htaccess               # Rewrites short paths to the app (upload with the leading dot)
-├── database-migration.sql  # Adds optional link settings and key mode
+├── database-migration.sql  # Adds optional link settings and challenge modes
 ├── favicon.png             # Site icon
+├── key.png                 # Exact favicon duplicate used as the challenge key
 ├── limbo.mp3               # Audio
 └── LICENSE                 # MIT
 ```
@@ -136,17 +141,28 @@ The repo only ships a migration (`database-migration.sql`), not the original tab
 
 ```sql
 CREATE TABLE short_links (
-  id          VARCHAR(36)  NOT NULL PRIMARY KEY,  -- link name, stored lowercase; duplicate = error 1062 -> HTTP 409
+  id          VARCHAR(36)  CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,  -- case-sensitive link name; duplicate = error 1062 -> HTTP 409
   destination TEXT         NOT NULL,              -- HTTPS URL, max 2048 chars enforced by create-link.php
   expires_at  DATETIME     NULL,                  -- optional; the generator leaves it NULL
   button_text VARCHAR(40)  NULL,
   page_title  VARCHAR(80)  NULL,
   show_hint   TINYINT(1)   NOT NULL DEFAULT 0,
-  key_mode    VARCHAR(16)  NOT NULL DEFAULT 'classic'  -- 'classic' or 'key-select'
+  key_mode    VARCHAR(16)  NOT NULL DEFAULT 'classic',  -- 'classic' or 'key-select'
+  detail_mode VARCHAR(16)  NOT NULL DEFAULT 'high-detail' -- 'high-detail' or 'low-detail'
 ) CHARACTER SET utf8mb4;
 ```
 
-Already have the base table (`id`, `destination`, `expires_at`)? Apply `database-migration.sql`. If you only need Key select mode:
+Already have the base table (`id`, `destination`, `expires_at`)? Apply `database-migration.sql`. It adds the optional link settings and challenge modes and makes link IDs case-sensitive so uppercase names work and names differing only by case can coexist. If you already applied the previous migration, do not run it again; add the new detail setting and ensure IDs are case-sensitive:
+
+```sql
+ALTER TABLE short_links
+    ADD COLUMN detail_mode VARCHAR(16) NOT NULL DEFAULT 'high-detail';
+
+ALTER TABLE short_links
+    MODIFY id VARCHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL;
+```
+
+If you only need Key select mode:
 
 ```sql
 ALTER TABLE short_links ADD COLUMN key_mode VARCHAR(16) NOT NULL DEFAULT 'classic';
@@ -178,7 +194,7 @@ If a short path gives you a 404, check that `.htaccess` uploaded correctly (dotf
 
 The correct key is tracked even while the keys are moving.
 
-The browser generates an eight-character short name (or uses your custom one) and sends it with the HTTPS destination to `create-link.php`, which stores it with the optional title, button text, key mode, and hint. When a link is opened, `script.js` calls `resolve-link.php` to fetch the destination and display settings. The destination never appears in the browser URL. After you win, the browser redirects.
+The browser generates an eight-character short name (or uses your custom one) and sends it with the HTTPS destination to `create-link.php`, which stores it with the optional title, button text, key mode, detail mode, and hint. When a link is opened, `script.js` calls `resolve-link.php` to fetch the destination and display settings. The destination never appears in the browser URL. After you win, the browser redirects.
 
 As for the shell game: the game randomly chooses a starting key and follows it through every shuffle to its new slot. Movement animations are committed to the keys' positions so the visuals stay in sync with the answer. Before the final selection, the keys are reordered to preserve their shuffled positions, and the selected slot is checked against the tracked key's final position.
 
@@ -190,13 +206,15 @@ Click the right one:
 CORRECT
 ```
 
-and the browser redirects.
+After the gray landing, the destination is shown for one second before the browser redirects.
 
 Click the wrong one:
 
 ```text
 WRONG
 ```
+
+The red crash sequence plays once before the challenge restarts.
 
 and you're sent back to try again.
 
@@ -224,7 +242,7 @@ Nothing fancy:
 * PHP and MySQL on InfinityFree
 * A tiny bit of insanity
 
-The interface uses eight SVG key icons on a black background with glowing color effects. The JavaScript handles the game sequence, animations, randomization, audio, key selection, and the final redirect.
+The interface offers high-detail illustrated keys and a low-detail simple-key mode on black. The JavaScript handles the game sequence, animations, randomization, audio, key selection, and the final redirect.
 
 ---
 
