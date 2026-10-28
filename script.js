@@ -60,6 +60,9 @@ function drawBackdropFrame(now) {
 		ctx.globalAlpha = opacity;
 		ctx.fillStyle = backdropFlashColor;
 		ctx.fillRect(0, 0, w, h);
+		ctx.globalAlpha = opacity * 0.22;
+		ctx.fillStyle = '#fff';
+		ctx.fillRect(0, 0, w, h);
 		ctx.globalAlpha = 1;
 		if (elapsed < 1) {
 			backdropFrame = window.requestAnimationFrame(drawBackdropFrame);
@@ -147,11 +150,8 @@ function isTargetPage() {
 	return getLinkToken() !== null || testMode;
 }
 
-const testMode = (
-	window.location.protocol === 'file:' ||
-	window.location.hostname === 'localhost' ||
-	window.location.hostname === '127.0.0.1'
-) && new URLSearchParams(window.location.search).get('test') === '1' &&
+const testParameters = new URLSearchParams(window.location.search);
+const testMode = testParameters.get('test') === '1' &&
 	getLinkToken() === null;
 
 document.title = testMode
@@ -179,13 +179,18 @@ let resolvedRedirectUrl = null;
 const linkToken = getLinkToken();
 const linkResolution = testMode
 	? Promise.resolve().then(() => {
-		resolvedRedirectUrl = 'https://example.com/';
+		const testDetailMode = testParameters.get('detail');
+		const testKeyMode = testParameters.get('key');
+		const returnId = testParameters.get('return');
+		resolvedRedirectUrl = returnId && /^[a-z0-9-]+$/i.test(returnId)
+			? `how-to-create.html#${encodeURIComponent(returnId)}`
+			: 'how-to-create.html';
 		startBtn.textContent = 'START TEST';
-		linkTitle.textContent = 'LOCAL TEST CHALLENGE';
+		linkTitle.textContent = 'TEST CHALLENGE';
 		linkTitle.hidden = false;
-		challengeHint.dataset.enabled = 'false';
-		setChallengeMode('classic');
-		setDetailMode('high-detail');
+		challengeHint.dataset.enabled = 'true';
+		setChallengeMode(testKeyMode === 'key-select' ? 'key-select' : 'classic');
+		setDetailMode(testDetailMode === 'low-detail' ? 'low-detail' : 'high-detail');
 		startBtn.classList.remove('hidden');
 	})
 	: linkToken
@@ -449,6 +454,11 @@ startBtn.onclick = () => {
 														keys[k].classList.remove('flash-highlight');
 													}
 													k = (k + 1) % 8;
+													const keyColor = keys[k].style.getPropertyValue('--col').trim();
+													keys[k].animate([
+														{ color: '#fff', textShadow: `0px 0px 8vh ${keyColor}, 0px 0px 8vh #fffd` },
+														{ color: keyColor, textShadow: `0px 0px 8vh ${keyColor}` }
+													], { duration: 500 });
 													keys[k].classList.add('flash-highlight');
 												}, 500);
 											}
@@ -494,7 +504,7 @@ startBtn.onclick = () => {
 												startBackdrop('flash', keys[selectedPosition].style.getPropertyValue('--col'));
 												window.setTimeout(() => {
 													startBackdrop(landedCorrectly ? 'landing' : 'crash', null, landedCorrectly ? 'CORRECT!' : 'WRONG');
-												}, 1000);
+												}, 800);
 												container.classList.remove('rotary-container');
 												container.classList.remove('key-select-mode');
 												container.classList.add('container');
@@ -509,7 +519,7 @@ startBtn.onclick = () => {
 														await linkResolution;
 														const redirectDetail = document.createElement('span');
 														redirectDetail.className = 'redirect-detail';
-														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+														if (typeof resolvedRedirectUrl === 'string' && (resolvedRedirectUrl.startsWith('how-to-create.html') || /^https:\/\//i.test(resolvedRedirectUrl))) {
 															redirectDetail.append('Landing complete. Redirecting you to ');
 															const destinationLink = document.createElement('a');
 															destinationLink.className = 'redirect-destination';
@@ -523,7 +533,7 @@ startBtn.onclick = () => {
 														outcomeMessage.hidden = false;
 													}
 													if (landedCorrectly) {
-														if (typeof resolvedRedirectUrl === 'string' && /^https:\/\//i.test(resolvedRedirectUrl)) {
+														if (typeof resolvedRedirectUrl === 'string' && (resolvedRedirectUrl.startsWith('how-to-create.html') || /^https:\/\//i.test(resolvedRedirectUrl))) {
 															window.setTimeout(() => {
 																const redirectLink = document.createElement('a');
 																redirectLink.href = resolvedRedirectUrl;

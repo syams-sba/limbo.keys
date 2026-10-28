@@ -536,7 +536,8 @@ body.scene-active #challenge-scene {
 	height: min(20vh, 22vw);
 	--col: #f00;
 	color: var(--col);
-	transition: color .3s ease;
+	text-shadow: 0px 0px 8vh var(--col);
+	transition: color .3s ease, text-shadow .3s ease;
 	font-size: 16vh;
 	font-family: PUSAB, sans-serif;
 	font-weight: 900;
@@ -556,18 +557,27 @@ body.scene-active #challenge-scene {
 	filter: hue-rotate(var(--hue, 0deg)) drop-shadow(0 0 7px var(--col)) drop-shadow(0 0 18px var(--col));
 }
 .key.flash-highlight::before {
-	animation: key-flash .5s ease-out forwards;
+	animation: key-flash .5s ease-out;
 }
 .key.correct-reveal::before {
 	animation: correct-key-reveal .75s ease-in-out forwards;
 }
 @keyframes key-flash {
-	0%, 30% {
-		filter: hue-rotate(var(--hue, 0deg)) brightness(1.35) drop-shadow(0 0 10px var(--col)) drop-shadow(0 0 24px var(--col));
+	0% {
+		filter: hue-rotate(var(--hue, 0deg)) brightness(1) drop-shadow(0 0 7px var(--col)) drop-shadow(0 0 18px var(--col));
+	}
+	15% {
+		filter: hue-rotate(var(--hue, 0deg)) brightness(2.7) saturate(.75) drop-shadow(0 0 14px var(--col)) drop-shadow(0 0 32px var(--col));
+	}
+	55% {
+		filter: hue-rotate(var(--hue, 0deg)) brightness(1.55) saturate(.9) drop-shadow(0 0 10px var(--col)) drop-shadow(0 0 22px var(--col));
 	}
 	100% {
 		filter: hue-rotate(var(--hue, 0deg)) drop-shadow(0 0 7px var(--col)) drop-shadow(0 0 18px var(--col));
 	}
+}
+body.low-detail .key.flash-highlight svg {
+	display: block;
 }
 @keyframes correct-key-reveal {
 	0% {
@@ -641,7 +651,7 @@ body.low-detail .key svg {
 	width: 72%;
 	height: 72%;
 	fill: currentColor;
-	filter: drop-shadow(0 0 7px currentColor) drop-shadow(0 0 18px currentColor);
+	filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px currentColor);
 }
 
 #outcome-message {
@@ -809,10 +819,52 @@ body.low-detail .key svg {
 .guide-content code {
 	color: #ffb6b9;
 }
+.guide-example-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: .75rem;
+	margin-top: 1rem;
+}
+.guide-example {
+	padding: .9rem;
+	border: 1px solid #542025;
+	background: rgba(18, 9, 11, .88);
+	scroll-margin-top: 1rem;
+}
+.guide-example:target {
+	border-color: #ff696e;
+	box-shadow: 0 0 1rem rgba(255, 52, 59, .24);
+}
+.guide-example h3 {
+	margin: 0;
+	color: #ff343b;
+	font-size: 1.15rem;
+	line-height: 1.2;
+}
+.guide-example p {
+	min-height: 2.8em;
+}
+.guide-example a {
+	display: inline-block;
+	padding: .55rem .8rem;
+	border: 1px solid #84252c;
+	background: #16090c;
+	text-decoration: none;
+}
+.guide-example a:hover {
+	background: #391015;
+	color: #fff;
+}
 .guide-image-placeholder img {
 	display: block;
 	width: 100%;
 	height: auto;
+}
+
+@media (max-width: 520px) {
+	.guide-example-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 600px) {
